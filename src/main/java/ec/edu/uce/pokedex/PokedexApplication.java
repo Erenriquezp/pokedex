@@ -1,33 +1,33 @@
 package ec.edu.uce.pokedex;
 
-import ec.edu.uce.pokedex.view.MainView;
-import org.springframework.boot.SpringApplication;
+import ec.edu.uce.pokedex.controller.PokedexController;
+import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.builder.SpringApplicationBuilder;
 
 import javax.swing.*;
 
 @SpringBootApplication
 public class PokedexApplication implements CommandLineRunner {
+    private final PokedexController controller;
 
-    private final MainView mainView;
-
-    public PokedexApplication(MainView mainView) {
-        this.mainView = mainView;
+    public PokedexApplication(PokedexController controller) {
+        this.controller = controller;
     }
 
     public static void main(String[] args) {
-// Asegúrate de que se ejecute en un entorno gráfico
-        SwingUtilities.invokeLater(() -> {
-            SpringApplication.run(PokedexApplication.class, args);
-            new MainView(); // Asegúrate de que MainView sea tu clase JFrame
-        });    }
+        new SpringApplicationBuilder(PokedexApplication.class)
+                .headless(false)
+                .web(WebApplicationType.NONE)
+                .run(args);
+    }
 
     @Override
-    public void run(String... args) {
-        // Ejecutar la GUI de Swing en el hilo EDT
-        javax.swing.SwingUtilities.invokeLater(mainView::initialize);
+    public void run(String... args) throws Exception {
+        javax.swing.SwingUtilities.invokeLater(controller::startGUI);
+
     }
 }
 

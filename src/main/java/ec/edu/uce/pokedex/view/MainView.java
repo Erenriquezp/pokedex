@@ -10,24 +10,46 @@ public class MainView {
 
     private JFrame frame;
 
-    public void initialize() {
+    public void initialize(SearchPanel searchPanel, AbilityView abilityView) {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
         frame.setLayout(new BorderLayout());
 
-        // Barra de menú
+        // Crear barra de menú
         JMenuBar menuBar = createMenuBar();
         frame.setJMenuBar(menuBar);
 
-        // Panel principal
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BorderLayout());
-        JLabel welcomeLabel = new JLabel("Welcome to the Pokédex", SwingConstants.CENTER);
-        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        mainPanel.add(welcomeLabel, BorderLayout.CENTER);
+        // Configurar panel principal
+        JPanel mainPanel = new JPanel(new CardLayout());
+        mainPanel.add(searchPanel.getPanel(), "SearchPanel");
+        mainPanel.add(abilityView.getPanel(), "AbilityView");
 
+        JPanel buttonPanel = new JPanel();
+        JButton searchButton = new JButton("Search Pokémon");
+        JButton abilitiesButton = new JButton("View Abilities");
+
+        searchButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "SearchPanel");
+        });
+
+        abilitiesButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "AbilityView");
+        });
+
+        JLabel titleLabel = new JLabel("Pokédex", SwingConstants.CENTER);
+        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        mainPanel.add(titleLabel, BorderLayout.NORTH);
+
+        // Agregar el panel
+        buttonPanel.add(searchButton);
+        buttonPanel.add(abilitiesButton);
+
+        frame.add(buttonPanel, BorderLayout.NORTH);
         frame.add(mainPanel, BorderLayout.CENTER);
+
         frame.setVisible(true);
     }
 

@@ -1,64 +1,73 @@
 package ec.edu.uce.pokedex.view;
 
-import ec.edu.uce.pokedex.model.Pokemon;
+import ec.edu.uce.pokedex.models.Pokemon;
 import ec.edu.uce.pokedex.service.PokeService;
+import lombok.Getter;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Mono;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.concurrent.ExecutionException;
 
 @Component
-public class SearchPanel extends JPanel {
+public class SearchPanel {
 
-    private final PokeService pokeService;
-    private JTextField searchField;
-    private JButton searchButton;
-    private JLabel resultLabel;
+    @Getter
+    private final JPanel panel;
+    private final JLabel resultLabel;
 
     public SearchPanel(PokeService pokeService) {
-        this.pokeService = pokeService;
-        initialize();
-    }
+        this.panel = new JPanel();
+        this.panel.setLayout(new GridLayout(3, 1, 10, 10));
 
-    private void initialize() {
-        this.setLayout(new FlowLayout());
+        JTextField searchField = new JTextField();
+        searchField.setFont(new Font("Arial", Font.PLAIN, 18));
+        searchField.setHorizontalAlignment(JTextField.CENTER);
 
-        searchField = new JTextField(20);
-        searchButton = new JButton("Search");
-        resultLabel = new JLabel("Results will appear here");
+        JButton searchButton = new JButton("Search");
+        searchButton.setFont(new Font("Arial", Font.BOLD, 16));
 
-        searchButton.addActionListener(e -> performSearch());
+        this.resultLabel = new JLabel("Enter a Pokémon name to search", SwingConstants.CENTER);
+        this.resultLabel.setFont(new Font("Arial", Font.ITALIC, 14));
 
-        this.add(searchField);
-        this.add(searchButton);
-        this.add(resultLabel);
-    }
-
-    private void performSearch() {
-        String query = searchField.getText().trim();
-        if (query.isEmpty()) {
-            resultLabel.setText("Please enter a Pokémon name or ID.");
-            return;
-        }
-
-        // Usamos un SwingWorker para ejecutar la solicitud de búsqueda en un hilo separado
-        new SwingWorker<Pokemon, Void>() {
-            @Override
-            protected Pokemon doInBackground() throws Exception {
-                return pokeService.getPokemonByName(query).block(); // Ejecutamos la solicitud sin bloquear la UI
+        // Configurar acción del botón de búsqueda
+        searchButton.addActionListener(e -> {
+            String name = searchField.getText().trim();
+            if (name.isEmpty()) {
+                resultLabel.setText("Please enter a valid Pokémon name.");
+                return;
             }
 
-            @Override
-            protected void done() {
-                try {
-                    Pokemon pokemon = get();
-                    resultLabel.setText("Found: " + pokemon.getName());
-                } catch (InterruptedException | ExecutionException e) {
-                    resultLabel.setText("Error: Pokémon not found");
-                }
-            }
-        }.execute();
+            fetchAndDisplayPokemonInfo(pokeService, name);
+        });
+
+        panel.add(searchField);
+        panel.add(searchButton);
+        panel.add(resultLabel);
+    }
+
+    private void fetchAndDisplayPokemonInfo(PokeService pokeService, String name) {
+        pokeService.getPokemonByName(name.toLowerCase())
+                .doOnNext(this::displayPokemonInfo)
+                .doOnError(err -> resultLabel.setText("Error: Pokémon not found!"))
+                .subscribe();
+    }
+
+    private void displayPokemonInfo(Pokemon pokemon) {
+        String info = String.format(
+                "<html>Pokemon Found!<br>" +
+                        "ID: %d<br>" +
+                        "Name: %s<br>" +
+                        "Base Experience: %d<br>" +
+                        "Height: %d<br>" +
+                        "Weight: %d<br>" +
+                        "Order: %d</html>",
+                pokemon.getId(),
+                pokemon.getName(),
+                pokemon.getBaseExperience(),
+                pokemon.getHeight(),
+                pokemon.getWeight(),
+                pokemon.getOrder()
+        );
+        resultLabel.setText(info);
     }
 }

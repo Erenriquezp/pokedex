@@ -1,6 +1,6 @@
 package ec.edu.uce.pokedex.service;
 
-import ec.edu.uce.pokedex.model.Pokemon;
+import ec.edu.uce.pokedex.models.Pokemon;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
