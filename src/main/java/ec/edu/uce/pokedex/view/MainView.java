@@ -10,10 +10,10 @@ public class MainView {
 
     private JFrame frame;
 
-    public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel) {
+    public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView) {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(800, 600);
+        frame.setSize(900, 700);
         frame.setLayout(new BorderLayout());
 
         // Crear barra de menú
@@ -26,12 +26,25 @@ public class MainView {
         mainPanel.add(searchPanel.getPanel(), "SearchPanel");
         mainPanel.add(abilityView.getPanel(), "AbilityView");
         mainPanel.add(spriteView.getPanel(), "SpriteView");
+        mainPanel.add(statView.getPanel(), "StatView");
+        mainPanel.add(typeView.getPanel(), "TypeView"); // Agregar TypeView al mainPanel
 
+        JPanel buttonPanel = createButtonPanel(mainPanel);
+
+        frame.add(buttonPanel, BorderLayout.NORTH);
+        frame.add(mainPanel, BorderLayout.CENTER);
+
+        frame.setVisible(true);
+    }
+
+    private static JPanel createButtonPanel(JPanel mainPanel) {
         JPanel buttonPanel = new JPanel();
         JButton homeButton = new JButton("Home");
         JButton searchButton = new JButton("Search Pokémon");
         JButton abilitiesButton = new JButton("View Abilities");
         JButton spritesButton = new JButton("View Sprites");
+        JButton statsButton = new JButton("View Stats");
+        JButton typesButton = new JButton("View Pokémon by Type"); // Botón para TypeView
 
         homeButton.addActionListener(e -> {
             CardLayout cl = (CardLayout) mainPanel.getLayout();
@@ -53,15 +66,23 @@ public class MainView {
             cl.show(mainPanel, "SpriteView");
         });
 
+        statsButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "StatView");
+        });
+
+        typesButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "TypeView");
+        });
+
         buttonPanel.add(homeButton);
         buttonPanel.add(searchButton);
         buttonPanel.add(abilitiesButton);
         buttonPanel.add(spritesButton);
-
-        frame.add(buttonPanel, BorderLayout.NORTH);
-        frame.add(mainPanel, BorderLayout.CENTER);
-
-        frame.setVisible(true);
+        buttonPanel.add(statsButton);
+        buttonPanel.add(typesButton); // Agregar botón al panel
+        return buttonPanel;
     }
 
     private JMenuBar createMenuBar() {

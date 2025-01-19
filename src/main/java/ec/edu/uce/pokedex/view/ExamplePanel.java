@@ -49,13 +49,14 @@ public class ExamplePanel {
     private void populatePanel(List<PokemonDto> pokemons) {
         SwingUtilities.invokeLater(() -> {
             panel.removeAll();
-            for (PokemonDto dto : pokemons) {
-                panel.add(createPokemonCard(dto));
-            }
+            pokemons.stream()
+                    .map(this::createPokemonCard)
+                    .forEach(panel::add); // Usar forEach para agregar directamente al panel
             panel.revalidate();
             panel.repaint();
         });
     }
+
 
     /**
      * Creates a card for a Pokémon.
