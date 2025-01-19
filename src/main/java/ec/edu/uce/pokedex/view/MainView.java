@@ -10,7 +10,7 @@ public class MainView {
 
     private JFrame frame;
 
-    public void initialize(SearchPanel searchPanel, AbilityView abilityView) {
+    public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel) {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(800, 600);
@@ -22,12 +22,21 @@ public class MainView {
 
         // Configurar panel principal
         JPanel mainPanel = new JPanel(new CardLayout());
+        mainPanel.add(examplePanel.getPanel(), "ExamplePanel");
         mainPanel.add(searchPanel.getPanel(), "SearchPanel");
         mainPanel.add(abilityView.getPanel(), "AbilityView");
+        mainPanel.add(spriteView.getPanel(), "SpriteView");
 
         JPanel buttonPanel = new JPanel();
+        JButton homeButton = new JButton("Home");
         JButton searchButton = new JButton("Search Pokémon");
         JButton abilitiesButton = new JButton("View Abilities");
+        JButton spritesButton = new JButton("View Sprites");
+
+        homeButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "ExamplePanel");
+        });
 
         searchButton.addActionListener(e -> {
             CardLayout cl = (CardLayout) mainPanel.getLayout();
@@ -39,13 +48,15 @@ public class MainView {
             cl.show(mainPanel, "AbilityView");
         });
 
-        JLabel titleLabel = new JLabel("Pokédex", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        mainPanel.add(titleLabel, BorderLayout.NORTH);
+        spritesButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "SpriteView");
+        });
 
-        // Agregar el panel
+        buttonPanel.add(homeButton);
         buttonPanel.add(searchButton);
         buttonPanel.add(abilitiesButton);
+        buttonPanel.add(spritesButton);
 
         frame.add(buttonPanel, BorderLayout.NORTH);
         frame.add(mainPanel, BorderLayout.CENTER);
