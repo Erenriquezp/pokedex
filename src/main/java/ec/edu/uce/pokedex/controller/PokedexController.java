@@ -13,8 +13,10 @@ public class PokedexController {
     private final ExamplePanel examplePanel;
     private final StatView statView;
     private final TypeView typeView; // Agregar TypeView
+    private final MoveView moveView;
+    private final EvolutionView evolutionView;
 
-    public PokedexController(MainView mainView, SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView) {
+    public PokedexController(MainView mainView, SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView, MoveView moveView, EvolutionView evolutionView) {
         this.mainView = mainView;
         this.searchPanel = searchPanel;
         this.abilityView = abilityView;
@@ -22,9 +24,11 @@ public class PokedexController {
         this.examplePanel = examplePanel;
         this.statView = statView;
         this.typeView = typeView; // Inicializar TypeView
+        this.moveView = moveView;
+        this.evolutionView = evolutionView;
     }
 
     public void startGUI() {
-        mainView.initialize(searchPanel, abilityView, spriteView, examplePanel, statView, typeView);
+        mainView.initialize(searchPanel, abilityView, spriteView, examplePanel, statView, typeView, moveView, evolutionView);
     }
 }

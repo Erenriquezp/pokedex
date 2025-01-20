@@ -10,10 +10,10 @@ public class MainView {
 
     private JFrame frame;
 
-    public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView) {
+    public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView, MoveView moveView, EvolutionView evolutionView) {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(900, 700);
+        frame.setSize(1280, 960);
         frame.setLayout(new BorderLayout());
 
         // Crear barra de menú
@@ -27,7 +27,9 @@ public class MainView {
         mainPanel.add(abilityView.getPanel(), "AbilityView");
         mainPanel.add(spriteView.getPanel(), "SpriteView");
         mainPanel.add(statView.getPanel(), "StatView");
-        mainPanel.add(typeView.getPanel(), "TypeView"); // Agregar TypeView al mainPanel
+        mainPanel.add(typeView.getPanel(), "TypeView");
+        mainPanel.add(moveView.getPanel(), "MoveView");
+        mainPanel.add(evolutionView.getPanel(), "EvolutionView"); // Agregar EvolutionView al mainPanel
 
         JPanel buttonPanel = createButtonPanel(mainPanel);
 
@@ -44,7 +46,9 @@ public class MainView {
         JButton abilitiesButton = new JButton("View Abilities");
         JButton spritesButton = new JButton("View Sprites");
         JButton statsButton = new JButton("View Stats");
-        JButton typesButton = new JButton("View Pokémon by Type"); // Botón para TypeView
+        JButton typesButton = new JButton("View Pokémon by Type");
+        JButton movesButton = new JButton("View Moves");
+        JButton evolutionButton = new JButton("View Evolution Chain"); // Botón para EvolutionView
 
         homeButton.addActionListener(e -> {
             CardLayout cl = (CardLayout) mainPanel.getLayout();
@@ -76,12 +80,24 @@ public class MainView {
             cl.show(mainPanel, "TypeView");
         });
 
+        movesButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "MoveView");
+        });
+
+        evolutionButton.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, "EvolutionView");
+        });
+
         buttonPanel.add(homeButton);
         buttonPanel.add(searchButton);
         buttonPanel.add(abilitiesButton);
         buttonPanel.add(spritesButton);
         buttonPanel.add(statsButton);
-        buttonPanel.add(typesButton); // Agregar botón al panel
+        buttonPanel.add(typesButton);
+        buttonPanel.add(movesButton);
+        buttonPanel.add(evolutionButton); // Agregar botón al panel
         return buttonPanel;
     }
 
