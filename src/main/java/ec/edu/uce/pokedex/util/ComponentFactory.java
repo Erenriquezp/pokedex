@@ -1,4 +1,4 @@
-package ec.edu.uce.pokedex.utils;
+package ec.edu.uce.pokedex.util;
 
 import javax.swing.*;
 import java.awt.*;

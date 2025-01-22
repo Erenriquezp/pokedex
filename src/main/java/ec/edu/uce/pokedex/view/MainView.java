@@ -1,5 +1,7 @@
 package ec.edu.uce.pokedex.view;
 
+import ec.edu.uce.pokedex.config.UIConfig;
+import ec.edu.uce.pokedex.util.ComponentFactory;
 import org.springframework.stereotype.Component;
 
 import javax.swing.*;
@@ -8,19 +10,40 @@ import java.awt.*;
 @Component
 public class MainView {
 
+    private final UIConfig uiConfig;
+
+    public MainView(UIConfig uiConfig) {
+        this.uiConfig = uiConfig;
+    }
+
     private JFrame frame;
 
     public void initialize(SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, ExamplePanel examplePanel, StatView statView, TypeView typeView, MoveView moveView, EvolutionView evolutionView) {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1280, 960);
-        frame.setLayout(new BorderLayout());
+
+        // Configurar la ventana a pantalla completa
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        frame.setUndecorated(false);
+
+        // Configurar panel principal
+        JPanel mainPanel = createMainPanel(examplePanel, searchPanel, abilityView, spriteView, statView, typeView, moveView, evolutionView);
 
         // Crear barra de menú
         JMenuBar menuBar = createMenuBar();
         frame.setJMenuBar(menuBar);
 
-        // Configurar panel principal
+        // Crear panel de botones de navegación
+        JPanel buttonPanel = createButtonPanel(mainPanel);
+
+        // Configurar el frame
+        frame.setLayout(new BorderLayout());
+        frame.add(buttonPanel, BorderLayout.NORTH);
+        frame.add(mainPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+    }
+
+    private JPanel createMainPanel(ExamplePanel examplePanel, SearchPanel searchPanel, AbilityView abilityView, SpriteView spriteView, StatView statView, TypeView typeView, MoveView moveView, EvolutionView evolutionView) {
         JPanel mainPanel = new JPanel(new CardLayout());
         mainPanel.add(examplePanel.getPanel(), "ExamplePanel");
         mainPanel.add(searchPanel.getPanel(), "SearchPanel");
@@ -29,76 +52,33 @@ public class MainView {
         mainPanel.add(statView.getPanel(), "StatView");
         mainPanel.add(typeView.getPanel(), "TypeView");
         mainPanel.add(moveView.getPanel(), "MoveView");
-        mainPanel.add(evolutionView.getPanel(), "EvolutionView"); // Agregar EvolutionView al mainPanel
-
-        JPanel buttonPanel = createButtonPanel(mainPanel);
-
-        frame.add(buttonPanel, BorderLayout.NORTH);
-        frame.add(mainPanel, BorderLayout.CENTER);
-
-        frame.setVisible(true);
+        mainPanel.add(evolutionView.getPanel(), "EvolutionView");
+        return mainPanel;
     }
 
-    private static JPanel createButtonPanel(JPanel mainPanel) {
-        JPanel buttonPanel = new JPanel();
-        JButton homeButton = new JButton("Home");
-        JButton searchButton = new JButton("Search Pokémon");
-        JButton abilitiesButton = new JButton("View Abilities");
-        JButton spritesButton = new JButton("View Sprites");
-        JButton statsButton = new JButton("View Stats");
-        JButton typesButton = new JButton("View Pokémon by Type");
-        JButton movesButton = new JButton("View Moves");
-        JButton evolutionButton = new JButton("View Evolution Chain"); // Botón para EvolutionView
+    private JPanel createButtonPanel(JPanel mainPanel) {
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
+        buttonPanel.setBackground(uiConfig.secondaryColor());
 
-        homeButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "ExamplePanel");
-        });
+        buttonPanel.add(createNavigationButton("Home", mainPanel, "ExamplePanel"));
+        buttonPanel.add(createNavigationButton("Search Pokémon", mainPanel, "SearchPanel"));
+        buttonPanel.add(createNavigationButton("View Abilities", mainPanel, "AbilityView"));
+        buttonPanel.add(createNavigationButton("View Sprites", mainPanel, "SpriteView"));
+        buttonPanel.add(createNavigationButton("View Stats", mainPanel, "StatView"));
+        buttonPanel.add(createNavigationButton("View Pokémon by Type", mainPanel, "TypeView"));
+        buttonPanel.add(createNavigationButton("View Moves", mainPanel, "MoveView"));
+        buttonPanel.add(createNavigationButton("View Evolution Chain", mainPanel, "EvolutionView"));
 
-        searchButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "SearchPanel");
-        });
-
-        abilitiesButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "AbilityView");
-        });
-
-        spritesButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "SpriteView");
-        });
-
-        statsButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "StatView");
-        });
-
-        typesButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "TypeView");
-        });
-
-        movesButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "MoveView");
-        });
-
-        evolutionButton.addActionListener(e -> {
-            CardLayout cl = (CardLayout) mainPanel.getLayout();
-            cl.show(mainPanel, "EvolutionView");
-        });
-
-        buttonPanel.add(homeButton);
-        buttonPanel.add(searchButton);
-        buttonPanel.add(abilitiesButton);
-        buttonPanel.add(spritesButton);
-        buttonPanel.add(statsButton);
-        buttonPanel.add(typesButton);
-        buttonPanel.add(movesButton);
-        buttonPanel.add(evolutionButton); // Agregar botón al panel
         return buttonPanel;
+    }
+
+    private JButton createNavigationButton(String text, JPanel mainPanel, String cardName) {
+        JButton button = ComponentFactory.createButton(text, 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        button.addActionListener(e -> {
+            CardLayout cl = (CardLayout) mainPanel.getLayout();
+            cl.show(mainPanel, cardName);
+        });
+        return button;
     }
 
     private JMenuBar createMenuBar() {

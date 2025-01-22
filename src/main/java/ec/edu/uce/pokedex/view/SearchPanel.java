@@ -1,7 +1,9 @@
 package ec.edu.uce.pokedex.view;
 
+import ec.edu.uce.pokedex.config.UIConfig;
 import ec.edu.uce.pokedex.models.Pokemon;
 import ec.edu.uce.pokedex.service.PokeService;
+import ec.edu.uce.pokedex.util.ComponentFactory;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
 
@@ -16,42 +18,26 @@ public class SearchPanel {
     private final JPanel panel;
     private final JLabel imageLabel;
     private final JLabel infoLabel;
+    private final UIConfig uiConfig;
 
-    public SearchPanel(PokeService pokeService) {
+    public SearchPanel(PokeService pokeService, UIConfig uiConfig) {
+        this.uiConfig = uiConfig;
         this.panel = new JPanel(new BorderLayout(10, 10));
 
-        // Título del panel
-        JLabel titleLabel = new JLabel("Search Pokémon", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        // Crear y agregar los componentes principales
+        JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon", 24, SwingConstants.CENTER);
+        JTextField searchField = createSearchField();
+        JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        JPanel searchPanel = ComponentFactory.createSearchPanel(searchField, searchButton);
 
-        // Campo de búsqueda
-        JTextField searchField = new JTextField();
-        searchField.setFont(new Font("Arial", Font.PLAIN, 18));
-        searchField.setHorizontalAlignment(JTextField.CENTER);
+        this.imageLabel = ComponentFactory.createLabel("", 0, SwingConstants.CENTER);
+        this.imageLabel.setPreferredSize(new Dimension(300, 300));
 
-        // Botón de búsqueda
-        JButton searchButton = new JButton("Search");
-        searchButton.setFont(new Font("Arial", Font.BOLD, 16));
+        this.infoLabel = ComponentFactory.createLabel("Enter a Pokémon name to search", 14, SwingConstants.CENTER);
+        this.infoLabel.setFont(uiConfig.labelFont());
 
-        // Panel superior para la barra de búsqueda
-        JPanel searchPanel = new JPanel(new BorderLayout());
-        searchPanel.add(searchField, BorderLayout.CENTER);
-        searchPanel.add(searchButton, BorderLayout.EAST);
+        JPanel displayPanel = createDisplayPanel();
 
-        // Etiqueta para mostrar la imagen del Pokémon
-        imageLabel = new JLabel("", SwingConstants.CENTER);
-        imageLabel.setPreferredSize(new Dimension(300, 300));
-
-        // Etiqueta para mostrar la información del Pokémon
-        infoLabel = new JLabel("Enter a Pokémon name to search", SwingConstants.CENTER);
-        infoLabel.setFont(new Font("Arial", Font.ITALIC, 14));
-
-        // Panel central para mostrar la imagen y la información
-        JPanel displayPanel = new JPanel(new BorderLayout(10, 10));
-        displayPanel.add(imageLabel, BorderLayout.CENTER);
-        displayPanel.add(infoLabel, BorderLayout.SOUTH);
-
-        // Agregar los componentes al panel principal
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(searchPanel, BorderLayout.CENTER);
         panel.add(displayPanel, BorderLayout.SOUTH);
@@ -60,8 +46,7 @@ public class SearchPanel {
         searchButton.addActionListener(e -> {
             String name = searchField.getText().trim();
             if (name.isEmpty()) {
-                infoLabel.setText("Please enter a valid Pokémon name.");
-                imageLabel.setIcon(null);
+                showErrorMessage("Please enter a valid Pokémon name.");
                 return;
             }
             fetchAndDisplayPokemonInfo(pokeService, name);
@@ -69,25 +54,54 @@ public class SearchPanel {
     }
 
     /**
-     * Fetches Pokémon data and updates the display.
+     * Crea el campo de texto de búsqueda.
+     */
+    private JTextField createSearchField() {
+        JTextField searchField = new JTextField();
+        searchField.setFont(uiConfig.labelFont());
+        searchField.setHorizontalAlignment(JTextField.CENTER);
+        return searchField;
+    }
+
+    /**
+     * Crea el panel que muestra la imagen y la información.
+     */
+    private JPanel createDisplayPanel() {
+        JPanel displayPanel = new JPanel(new BorderLayout(10, 10));
+        displayPanel.add(imageLabel, BorderLayout.CENTER);
+        displayPanel.add(infoLabel, BorderLayout.SOUTH);
+        return displayPanel;
+    }
+
+    /**
+     * Muestra un mensaje de error al usuario.
      *
-     * @param pokeService PokeService instance for fetching Pokémon data.
-     * @param name        Pokémon name to search.
+     * @param message Mensaje de error.
+     */
+    private void showErrorMessage(String message) {
+        SwingUtilities.invokeLater(() -> {
+            infoLabel.setText(message);
+            imageLabel.setIcon(null);
+        });
+    }
+
+    /**
+     * Obtiene los datos del Pokémon y actualiza la UI.
+     *
+     * @param pokeService Servicio para obtener datos del Pokémon.
+     * @param name        Nombre del Pokémon.
      */
     private void fetchAndDisplayPokemonInfo(PokeService pokeService, String name) {
         pokeService.getPokemonByName(name.toLowerCase())
                 .doOnNext(this::displayPokemonInfo)
-                .doOnError(err -> SwingUtilities.invokeLater(() -> {
-                    infoLabel.setText("Error: Pokémon not found!");
-                    imageLabel.setIcon(null);
-                }))
+                .doOnError(err -> showErrorMessage("Error: Pokémon not found!"))
                 .subscribe();
     }
 
     /**
-     * Updates the UI with Pokémon information and sprite.
+     * Actualiza la interfaz con la información y sprite del Pokémon.
      *
-     * @param pokemon Pokémon data to display.
+     * @param pokemon Datos del Pokémon.
      */
     private void displayPokemonInfo(Pokemon pokemon) {
         SwingUtilities.invokeLater(() -> {

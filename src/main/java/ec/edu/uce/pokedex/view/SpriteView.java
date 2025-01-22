@@ -15,7 +15,6 @@ public class SpriteView {
      * -- GETTER --
      *  Returns the main panel for this view.
      *
-     * @return JPanel containing the sprite view.
      */
     @Getter
     private final JPanel panel;
