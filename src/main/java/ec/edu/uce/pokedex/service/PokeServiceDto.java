@@ -6,6 +6,7 @@ import ec.edu.uce.pokedex.repository.PokemonRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -63,4 +64,13 @@ public class PokeServiceDto {
 
         return dto;
     }
+
+    public List<PokemonDto> getPokemonPage(int offset, int limit) {
+        return pokemonRepository.findAll().stream()
+                .skip(offset)
+                .limit(limit)
+                .map(this::mapToPokemonDto)
+                .collect(Collectors.toList());
+    }
+
 }

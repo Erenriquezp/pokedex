@@ -66,12 +66,12 @@ public class MainView {
             EvolutionView evolutionView) {
 
         JPanel mainPanel = new JPanel(new CardLayout());
-        mainPanel.add(examplePanel.getPanel(), "ExamplePanel");
-        mainPanel.add(searchView.getPanel(), "SearchPanel");
+        mainPanel.add(examplePanel.getPanel(), "HomeView");
+        mainPanel.add(searchView.getPanel(), "SearchView");
         mainPanel.add(spriteView.getPanel(), "SpriteView");
         mainPanel.add(statView.getPanel(), "StatView");
-        mainPanel.add(typeView.getPanel(), "TypeView");
         mainPanel.add(evolutionView.getPanel(), "EvolutionView");
+        mainPanel.add(typeView.getPanel(), "TypeView");
         return mainPanel;
     }
 
@@ -83,12 +83,12 @@ public class MainView {
         JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         navigationPanel.setBackground(uiConfig.secondaryColor());
 
-        navigationPanel.add(createNavigationButton("Home", mainPanel, "ExamplePanel"));
-        navigationPanel.add(createNavigationButton("Search Pokémon", mainPanel, "SearchPanel"));
+        navigationPanel.add(createNavigationButton("Home", mainPanel, "HomeView"));
+        navigationPanel.add(createNavigationButton("Search Pokémon", mainPanel, "SearchView"));
         navigationPanel.add(createNavigationButton("View Sprites", mainPanel, "SpriteView"));
         navigationPanel.add(createNavigationButton("View Stats", mainPanel, "StatView"));
-        navigationPanel.add(createNavigationButton("View Pokémon by Type", mainPanel, "TypeView"));
         navigationPanel.add(createNavigationButton("View Evolution Chain", mainPanel, "EvolutionView"));
+        navigationPanel.add(createNavigationButton("View Pokémon by Type", mainPanel, "TypeView"));
 
         // Botón para cargar Pokémon desde la API
         JButton loadApiButton = ComponentFactory.createButton("Load Data from API", 16, Color.RED, Color.WHITE); // Cambia los colores según sea necesario
@@ -131,7 +131,7 @@ public class MainView {
 
     private ActionListener createLoadApiAction() {
         return (ActionEvent e) -> {
-            int limit = 10; // Configura el número máximo de Pokémon a cargar
+            int limit = 50; // Configura el número máximo de Pokémon a cargar
             int offset = 0; // Configura el punto de inicio
 
             try {
@@ -148,5 +148,4 @@ public class MainView {
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(frame, message, "Information", JOptionPane.INFORMATION_MESSAGE);
     }
-
 }

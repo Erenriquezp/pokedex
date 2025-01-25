@@ -2,6 +2,7 @@ package ec.edu.uce.pokedex.view;
 
 import ec.edu.uce.pokedex.config.UIConfig;
 import ec.edu.uce.pokedex.controller.EvolutionController;
+import ec.edu.uce.pokedex.exception.EvolutionFetchException;
 import ec.edu.uce.pokedex.util.ComponentFactory;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
@@ -37,24 +38,20 @@ public class EvolutionView {
         JTextField searchField = createSearchField();
         JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
 
-        // Cambiar el layout del panel de búsqueda a FlowLayout
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.setBackground(uiConfig.secondaryColor());
 
-        JPanel evolutionPanel = new JPanel();
-        evolutionPanel.setLayout(new BoxLayout(evolutionPanel, BoxLayout.X_AXIS));
-        evolutionPanel.setBackground(uiConfig.secondaryColor());
-
+        JPanel evolutionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 20));
         JScrollPane scrollPane = new JScrollPane(evolutionPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(searchPanel, BorderLayout.CENTER);
-        panel.add(scrollPane, BorderLayout.SOUTH);
+        panel.add(searchPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
         searchButton.addActionListener(e -> {
             String speciesName = searchField.getText().trim();
@@ -66,11 +63,6 @@ public class EvolutionView {
         });
     }
 
-    /**
-     * Creates the search field with styling.
-     *
-     * @return JTextField styled search field.
-     */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(20);
         searchField.setFont(uiConfig.labelFont());
@@ -78,43 +70,50 @@ public class EvolutionView {
         return searchField;
     }
 
-    /**
-     * Fetches and displays the evolution chain for a given Pokémon species.
-     *
-     * @param speciesName   Name of the Pokémon species.
-     * @param evolutionPanel Panel to display the evolution chain.
-     */
     private void fetchAndDisplayEvolutionChain(String speciesName, JPanel evolutionPanel) {
-        controller.getEvolutionChain(speciesName)
-                .doOnNext(chain -> SwingUtilities.invokeLater(() -> populateEvolutionPanel(chain, evolutionPanel)))
-                .doOnError(err -> showErrorMessage("Error: Unable to fetch evolution chain."))
-                .subscribe();
+        SwingWorker<List<Map<String, Object>>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Map<String, Object>> doInBackground() {
+                try {
+                    return controller.getEvolutionChain(speciesName).block();
+                } catch (Exception e) {
+                    throw new EvolutionFetchException("Failed to fetch evolution chain for: " + speciesName, e);
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Map<String, Object>> chain = get();
+                    if (chain == null || chain.isEmpty()) {
+                        showErrorMessage("No evolution chain found for: " + speciesName);
+                    } else {
+                        populateEvolutionPanel(chain, evolutionPanel);
+                    }
+                } catch (EvolutionFetchException e) {
+                    showErrorMessage(e.getMessage());
+                } catch (Exception e) {
+                    showErrorMessage("An unexpected error occurred while displaying the evolution chain.");
+                }
+            }
+        };
+        worker.execute();
     }
 
-    /**
-     * Populates the evolution panel with data.
-     *
-     * @param chain          List of evolution stages.
-     * @param evolutionPanel Panel to populate with evolution details.
-     */
     private void populateEvolutionPanel(List<Map<String, Object>> chain, JPanel evolutionPanel) {
-        evolutionPanel.removeAll();
+        SwingUtilities.invokeLater(() -> {
+            evolutionPanel.removeAll();
 
-        chain.forEach(stage -> {
-            JPanel stagePanel = createEvolutionStagePanel(stage);
-            evolutionPanel.add(stagePanel);
+            chain.forEach(stage -> {
+                JPanel stagePanel = createEvolutionStagePanel(stage);
+                evolutionPanel.add(stagePanel);
+            });
+
+            evolutionPanel.revalidate();
+            evolutionPanel.repaint();
         });
-
-        evolutionPanel.revalidate();
-        evolutionPanel.repaint();
     }
 
-    /**
-     * Creates a panel for a single evolution stage.
-     *
-     * @param stage Evolution stage data.
-     * @return JPanel representing the evolution stage.
-     */
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
         stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
@@ -135,42 +134,48 @@ public class EvolutionView {
         return stagePanel;
     }
 
-    /**
-     * Creates a JLabel for the Pokémon sprite.
-     *
-     * @param imageUrl URL of the Pokémon sprite.
-     * @return JLabel with the sprite or an error message.
-     */
     private JLabel createSpriteLabel(String imageUrl) {
         JLabel spriteLabel = new JLabel();
         spriteLabel.setHorizontalAlignment(SwingConstants.CENTER);
-        try {
-            ImageIcon spriteIcon = new ImageIcon(new URL(imageUrl));
-            Image scaledImage = spriteIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH);
-            spriteLabel.setIcon(new ImageIcon(scaledImage));
-        } catch (Exception e) {
-            spriteLabel.setText("Image not available");
-            spriteLabel.setFont(uiConfig.labelFont());
-        }
+
+        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
+            @Override
+            protected ImageIcon doInBackground() {
+                try {
+                    URL url = new URL(imageUrl);
+                    ImageIcon spriteIcon = new ImageIcon(url);
+                    return new ImageIcon(spriteIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
+                } catch (Exception e) {
+                    return null;
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ImageIcon spriteIcon = get();
+                    if (spriteIcon != null) {
+                        spriteLabel.setIcon(spriteIcon);
+                    } else {
+                        spriteLabel.setText("Image not available");
+                        spriteLabel.setFont(uiConfig.labelFont());
+                    }
+                } catch (Exception e) {
+                    spriteLabel.setText("Error loading image");
+                    spriteLabel.setFont(uiConfig.labelFont());
+                }
+            }
+        };
+        worker.execute();
+
         return spriteLabel;
     }
 
-    /**
-     * Extracts the Pokémon ID from the species URL.
-     *
-     * @param url URL of the species.
-     * @return Extracted Pokémon ID.
-     */
     private String extractIdFromUrl(String url) {
         String[] parts = url.split("/");
         return parts[parts.length - 1];
     }
 
-    /**
-     * Displays an error message to the user.
-     *
-     * @param message Error message to display.
-     */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)

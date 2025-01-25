@@ -17,7 +17,7 @@ public class OptionButtonPanel {
 
     public OptionButtonPanel() {
         this.panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        panel.setVisible(false); // Inicialmente oculto
+        panel.setBackground(Color.LIGHT_GRAY); // Establecer un color de fondo
     }
 
     public void updateButtons(Pokemon pokemon, BiConsumer<String, Pokemon> navigateToView) {
@@ -28,7 +28,6 @@ public class OptionButtonPanel {
         addButton("View Sprites", "SpriteView", navigateToView, pokemon);
         addButton("Evolution Chain", "EvolutionView", navigateToView, pokemon);
 
-        panel.setVisible(true);
         panel.revalidate();
         panel.repaint();
     }

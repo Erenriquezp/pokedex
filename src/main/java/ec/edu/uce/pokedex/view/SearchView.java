@@ -49,7 +49,6 @@ public class SearchView {
         JPanel displayPanel = createDisplayPanel();
         displayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(searchPanel, BorderLayout.NORTH);
         panel.add(displayPanel, BorderLayout.SOUTH);
@@ -67,10 +66,14 @@ public class SearchView {
         searchButton.addActionListener(e -> {
             String name = searchField.getText().trim();
             if (name.isEmpty()) {
-                showErrorMessage("Please enter a valid Pokémon name.");
+                showError("Please enter a valid Pokémon name.");
                 return;
             }
-            fetchAndDisplayPokemonInfo(pokeService, name);
+            try {
+                fetchAndDisplayPokemonInfo(pokeService, name);
+            } catch (Exception ex) {
+                showError("An unexpected error occurred: " + ex.getMessage());
+            }
         });
         return searchButton;
     }
@@ -80,116 +83,95 @@ public class SearchView {
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.PAGE_AXIS));
         displayPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
-        // Panel para imagen e información (dividido en dos)
-        JPanel imageAndInfoPanel = new JPanel(new GridLayout(1, 2, 10, 0)); // 1 fila, 2 columnas
+        JPanel imageAndInfoPanel = new JPanel(new GridLayout(1, 2, 10, 0));
 
-        // Panel de imagen
         JPanel imagePanel = new JPanel(new BorderLayout());
         imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         imagePanel.add(imageLabel, BorderLayout.CENTER);
 
-        // Panel de información
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         infoPanel.add(infoLabel, BorderLayout.CENTER);
 
-        // Añadir los paneles de imagen e información al contenedor dividido
         imageAndInfoPanel.add(imagePanel);
         imageAndInfoPanel.add(infoPanel);
 
-        // Añadir el panel de imagen e información al display principal
         displayPanel.add(imageAndInfoPanel);
 
-        // Panel de habilidades y movimientos (dividido en dos)
-        JPanel abilitiesAndMovesPanel = new JPanel(new GridLayout(1, 2, 10, 0)); // 1 fila, 2 columnas
+        JPanel abilitiesAndMovesPanel = new JPanel(new GridLayout(1, 2, 10, 0));
 
-        // Panel de habilidades
         JPanel abilityPanel = new JPanel(new BorderLayout());
-        JLabel abilityTitle = ComponentFactory.createLabel("Abilities", 16, SwingConstants.CENTER);
+        JLabel abilityTitle = ComponentFactory.createLabel("Abilities", 20, SwingConstants.CENTER);
         abilityPanel.add(abilityTitle, BorderLayout.NORTH);
+        abilityPanel.add(ComponentFactory.createScrollPane(abilityList), BorderLayout.CENTER);
 
-        JScrollPane abilityScrollPane = ComponentFactory.createScrollPane(abilityList);
-        abilityScrollPane.setPreferredSize(new Dimension(300, 200)); // Tamaño ajustado
-        abilityPanel.add(abilityScrollPane, BorderLayout.CENTER);
-
-        // Panel de movimientos
         JPanel movePanel = new JPanel(new BorderLayout());
-        JLabel moveTitle = ComponentFactory.createLabel("Moves", 16, SwingConstants.CENTER);
+        JLabel moveTitle = ComponentFactory.createLabel("Moves", 20, SwingConstants.CENTER);
         movePanel.add(moveTitle, BorderLayout.NORTH);
+        movePanel.add(ComponentFactory.createScrollPane(moveList), BorderLayout.CENTER);
 
-        JScrollPane moveScrollPane = ComponentFactory.createScrollPane(moveList);
-        moveScrollPane.setPreferredSize(new Dimension(300, 200)); // Tamaño ajustado
-        movePanel.add(moveScrollPane, BorderLayout.CENTER);
-
-        // Añadir los paneles de habilidades y movimientos al contenedor dividido
         abilitiesAndMovesPanel.add(abilityPanel);
         abilitiesAndMovesPanel.add(movePanel);
 
-        // Añadir el panel dividido al display principal
         displayPanel.add(abilitiesAndMovesPanel);
 
         return displayPanel;
     }
 
-    private void showErrorMessage(String message) {
-        SwingUtilities.invokeLater(() -> {
-            infoLabel.setText(message);
-            imageLabel.setIcon(null);
-            abilityList.setListData(new String[0]);
-            moveList.setListData(new String[0]);
-            searchField.requestFocusInWindow();
-        });
-    }
-
     private void fetchAndDisplayPokemonInfo(PokeService pokeService, String name) {
         pokeService.getPokemonByName(name.toLowerCase())
-                .ifPresentOrElse(this::displayPokemonInfo, () -> showErrorMessage("Pokémon not found."));
+                .ifPresentOrElse(this::displayPokemonInfo, () -> showError("Pokémon not found."));
     }
 
     private void displayPokemonInfo(Pokemon pokemon) {
         SwingUtilities.invokeLater(() -> {
-            String info = String.format(
-                    "<html><h2>Pokemon Found!</h2>" +
-                            "<b>ID:</b> %d<br>" +
-                            "<b>Name:</b> %s<br>" +
-                            "<b>Base Experience:</b> %d<br>" +
-                            "<b>Height:</b> %d<br>" +
-                            "<b>Weight:</b> %d<br>" +
-                            "<b>Order:</b> %d</html>",
-                    pokemon.getId(),
-                    pokemon.getName(),
-                    pokemon.getBaseExperience(),
-                    pokemon.getHeight(),
-                    pokemon.getWeight(),
-                    pokemon.getOrderIndex()
-            );
-            infoLabel.setText(info);
-
             try {
-                URL spriteUrl = new URL(pokemon.getSprites().getFrontDefault());
-                ImageIcon spriteIcon = new ImageIcon(spriteUrl);
-                Image scaledImage = spriteIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH);
-                imageLabel.setIcon(new ImageIcon(scaledImage));
-                imageLabel.setHorizontalAlignment(SwingConstants.CENTER);
-            } catch (Exception e) {
-                imageLabel.setText("Image not available");
-                imageLabel.setIcon(null);
+                String info = String.format(
+                        "<html><h2>Pokemon Found!</h2>" +
+                                "<b>ID:</b> %d<br>" +
+                                "<b>Name:</b> %s<br>" +
+                                "<b>Base Experience:</b> %d<br>" +
+                                "<b>Height:</b> %d<br>" +
+                                "<b>Weight:</b> %d<br>" +
+                                "<b>Order:</b> %d</html>",
+                        pokemon.getId(),
+                        pokemon.getName(),
+                        pokemon.getBaseExperience(),
+                        pokemon.getHeight(),
+                        pokemon.getWeight(),
+                        pokemon.getOrderIndex()
+                );
+                infoLabel.setText(info);
+
+                // Cargar imagen
+                try {
+                    URL spriteUrl = new URL(pokemon.getSprites().getFrontDefault());
+                    ImageIcon spriteIcon = new ImageIcon(spriteUrl);
+                    imageLabel.setIcon(new ImageIcon(spriteIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
+                } catch (Exception e) {
+                    imageLabel.setText("Image not available");
+                    imageLabel.setIcon(null);
+                }
+
+                // Cargar habilidades y movimientos
+                abilityList.setListData(pokemon.getAbilities().stream()
+                        .map(ability -> String.format("Name: %s, Slot: %d, Hidden: %s",
+                                ability.getName(),
+                                ability.getSlot(),
+                                ability.isHidden() ? "Yes" : "No"))
+                        .toArray(String[]::new));
+                moveList.setListData(pokemon.getMoves().stream()
+                        .map(Move::getName)
+                        .toArray(String[]::new));
+            } catch (Exception ex) {
+                showError("An error occurred while displaying Pokémon data.");
             }
-
-            List<String> abilities = pokemon.getAbilities().stream()
-                    .map(ability -> String.format("Name: %s, Slot: %d, Hidden: %s",
-                            ability.getName(),
-                            ability.getSlot(),
-                            ability.isHidden() ? "Yes" : "No"))
-                    .toList();
-            abilityList.setListData(abilities.toArray(new String[0]));
-
-            List<String> moves = pokemon.getMoves().stream()
-                    .map(Move::getName)
-                    .toList();
-            moveList.setListData(moves.toArray(new String[0]));
-
-            searchField.requestFocusInWindow();
         });
+    }
+
+    private void showError(String message) {
+        SwingUtilities.invokeLater(() ->
+                JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)
+        );
     }
 }

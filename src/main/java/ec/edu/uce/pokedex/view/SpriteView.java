@@ -2,6 +2,7 @@ package ec.edu.uce.pokedex.view;
 
 import ec.edu.uce.pokedex.config.UIConfig;
 import ec.edu.uce.pokedex.controller.SpriteController;
+import ec.edu.uce.pokedex.exception.SpriteFetchException;
 import ec.edu.uce.pokedex.models.Sprites;
 import ec.edu.uce.pokedex.util.ComponentFactory;
 import lombok.Getter;
@@ -31,18 +32,16 @@ public class SpriteView {
     private void initialize() {
         JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon Sprites", 18, SwingConstants.CENTER);
 
-        JTextField searchField;
-        searchField = ComponentFactory.createTextField(20, JTextField.CENTER);
+        JTextField searchField = ComponentFactory.createTextField(20, JTextField.CENTER);
         JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
 
         JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         inputPanel.add(searchField);
         inputPanel.add(searchButton);
 
-        JPanel spritePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10)); // Flexible layout
+        JPanel spritePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         JScrollPane scrollPane = ComponentFactory.createScrollPane(spritePanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-
         spritePanel.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
         spritePanel.setBackground(uiConfig.secondaryColor());
 
@@ -68,8 +67,7 @@ public class SpriteView {
                     Sprites sprites = controller.getSpritesForPokemon(pokemonName);
                     return loadSprites(sprites);
                 } catch (Exception e) {
-                    SwingUtilities.invokeLater(() -> showError("Error: Unable to fetch sprites."));
-                    return new ArrayList<>();
+                    throw new SpriteFetchException("Failed to fetch sprites for Pokémon: " + pokemonName, e);
                 }
             }
 
@@ -78,8 +76,10 @@ public class SpriteView {
                 try {
                     List<ImageIcon> spriteIcons = get();
                     updateSpritePanel(spriteIcons, spritePanel);
+                } catch (SpriteFetchException e) {
+                    showError(e.getMessage());
                 } catch (Exception e) {
-                    showError("Error displaying sprites.");
+                    showError("Unexpected error occurred while fetching sprites.");
                 }
             }
         };
@@ -88,14 +88,18 @@ public class SpriteView {
 
     private List<ImageIcon> loadSprites(Sprites sprites) {
         List<ImageIcon> spriteIcons = new ArrayList<>();
-        addSpriteIfValid(spriteIcons, sprites.getFrontDefault());
-        addSpriteIfValid(spriteIcons, sprites.getBackDefault());
-        addSpriteIfValid(spriteIcons, sprites.getFrontShiny());
-        addSpriteIfValid(spriteIcons, sprites.getBackShiny());
-        addSpriteIfValid(spriteIcons, sprites.getFrontFemale());
-        addSpriteIfValid(spriteIcons, sprites.getBackFemale());
-        addSpriteIfValid(spriteIcons, sprites.getFrontShinyFemale());
-        addSpriteIfValid(spriteIcons, sprites.getBackShinyFemale());
+        try {
+            addSpriteIfValid(spriteIcons, sprites.getFrontDefault());
+            addSpriteIfValid(spriteIcons, sprites.getBackDefault());
+            addSpriteIfValid(spriteIcons, sprites.getFrontShiny());
+            addSpriteIfValid(spriteIcons, sprites.getBackShiny());
+            addSpriteIfValid(spriteIcons, sprites.getFrontFemale());
+            addSpriteIfValid(spriteIcons, sprites.getBackFemale());
+            addSpriteIfValid(spriteIcons, sprites.getFrontShinyFemale());
+            addSpriteIfValid(spriteIcons, sprites.getBackShinyFemale());
+        } catch (Exception e) {
+            throw new SpriteFetchException("Error while loading sprites.", e);
+        }
         return spriteIcons;
     }
 
@@ -104,9 +108,9 @@ public class SpriteView {
             try {
                 URL url = new URL(spriteUrl);
                 ImageIcon spriteIcon = new ImageIcon(url);
-                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH))); // Escalar imagen
+                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
             } catch (Exception ignored) {
-                // Ignorar errores de carga de imagen
+                // Log the error if necessary, but avoid stopping the flow.
             }
         }
     }
@@ -115,26 +119,23 @@ public class SpriteView {
         SwingUtilities.invokeLater(() -> {
             spritePanel.removeAll();
 
-            // Nombres de los sprites
             String[] spriteNames = {
                     "Front Default", "Back Default", "Front Shiny", "Back Shiny",
                     "Front Female", "Back Female", "Front Shiny Female", "Back Shiny Female"
             };
 
-            // Crear un GridLayout para mostrar en tres filas
-            int rows = (int) Math.ceil(spriteIcons.size() / 3.0); // Calcular el número de filas
-            spritePanel.setLayout(new GridLayout(rows, 3, 10, 10)); // 3 columnas, espacio de 10 entre componentes
+            int rows = (int) Math.ceil(spriteIcons.size() / 3.0);
+            spritePanel.setLayout(new GridLayout(rows, 3, 10, 10));
 
             for (int i = 0; i < spriteIcons.size(); i++) {
                 ImageIcon spriteIcon = spriteIcons.get(i);
                 JLabel spriteLabel = new JLabel(spriteIcon);
                 spriteLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
-                // Crear un panel para contener la imagen y el nombre
                 JPanel spriteContainer = new JPanel(new BorderLayout());
                 spriteContainer.add(spriteLabel, BorderLayout.CENTER);
                 JLabel nameLabel = ComponentFactory.createLabel(spriteNames[i].toUpperCase(), 14, SwingConstants.CENTER);
-                spriteContainer.add(nameLabel, BorderLayout.SOUTH); // Añadir el nombre del sprite
+                spriteContainer.add(nameLabel, BorderLayout.SOUTH);
 
                 spritePanel.add(spriteContainer);
             }
