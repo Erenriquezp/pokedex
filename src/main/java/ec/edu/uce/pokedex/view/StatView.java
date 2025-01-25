@@ -1,10 +1,11 @@
 package ec.edu.uce.pokedex.view;
 
+import ec.edu.uce.pokedex.config.UIConfig;
 import ec.edu.uce.pokedex.controller.StatController;
 import ec.edu.uce.pokedex.models.Stat;
+import ec.edu.uce.pokedex.util.ComponentFactory;
 import lombok.Getter;
 import org.springframework.stereotype.Component;
-import reactor.core.publisher.Flux;
 
 import javax.swing.*;
 import java.awt.*;
@@ -13,20 +14,17 @@ import java.util.List;
 @Component
 public class StatView {
 
-    /**
-     * -- GETTER --
-     *  Returns the main panel for this view.
-     *
-     * @return JPanel containing the stats view.
-     */
     @Getter
     private final JPanel panel;
+
     private final StatController controller;
     private final JTable statTable;
+    private final UIConfig uiConfig;
 
-    public StatView(StatController controller) {
+    public StatView(StatController controller, UIConfig uiConfig) {
         this.controller = controller;
-        this.panel = new JPanel(new BorderLayout());
+        this.uiConfig = uiConfig;
+        this.panel = new JPanel(new BorderLayout(10, 10));
         this.statTable = new JTable();
         initialize();
     }
@@ -35,47 +33,50 @@ public class StatView {
      * Initializes the components of the StatView.
      */
     private void initialize() {
-        JLabel titleLabel = new JLabel("Pokémon Stats Viewer", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel titleLabel = ComponentFactory.createLabel("Pokémon Stats Viewer", 24, SwingConstants.CENTER);
 
-        JTextField searchField = new JTextField(20);
-        JButton searchButton = new JButton("Search");
-        searchButton.setFont(new Font("Arial", Font.BOLD, 16));
+        JTextField searchField = ComponentFactory.createTextField(20, SwingConstants.CENTER);
+        JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
 
-        JPanel searchPanel = new JPanel();
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
 
-        // Configurar tabla para mostrar estadísticas
         JScrollPane scrollPane = new JScrollPane(statTable);
 
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(searchPanel, BorderLayout.CENTER);
         panel.add(scrollPane, BorderLayout.SOUTH);
 
-        searchButton.addActionListener(e -> {
-            String pokemonName = searchField.getText().trim();
-            if (pokemonName.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Please enter a Pokémon name.", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-            fetchAndDisplayStats(pokemonName);
-        });
+        searchButton.addActionListener(e -> handleSearch(searchField));
     }
 
     /**
-     * Fetches and displays the stats for a given Pokémon.
+     * Handles the search action to fetch stats from the database.
+     *
+     * @param searchField Field where the Pokémon name is entered.
+     */
+    private void handleSearch(JTextField searchField) {
+        String pokemonName = searchField.getText().trim();
+        if (pokemonName.isEmpty()) {
+            showErrorMessage("Please enter a Pokémon name.");
+            return;
+        }
+        fetchAndDisplayStats(pokemonName);
+    }
+
+    /**
+     * Fetches and displays stats for a Pokémon.
      *
      * @param pokemonName Name of the Pokémon.
      */
     private void fetchAndDisplayStats(String pokemonName) {
-        controller.getStatsForPokemon(pokemonName)
-                .collectList()
-                .doOnNext(this::populateTable)
-                .doOnError(err -> SwingUtilities.invokeLater(() ->
-                        JOptionPane.showMessageDialog(panel, "Error: Unable to fetch stats.", "Error", JOptionPane.ERROR_MESSAGE)
-                ))
-                .subscribe();
+        try {
+            List<Stat> stats = controller.getStatsForPokemon(pokemonName);
+            populateTable(stats);
+        } catch (Exception e) {
+            showErrorMessage("Error: Unable to fetch stats from the database.");
+        }
     }
 
     /**
@@ -94,4 +95,25 @@ public class StatView {
         });
     }
 
+    /**
+     * Displays an error message to the user.
+     *
+     * @param message Error message to display.
+     */
+    private void showErrorMessage(String message) {
+        SwingUtilities.invokeLater(() ->
+                JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)
+        );
+    }
+
+    /**
+     * Displays an informational message to the user.
+     *
+     * @param message Informational message to display.
+     */
+    private void showInfoMessage(String message) {
+        SwingUtilities.invokeLater(() ->
+                JOptionPane.showMessageDialog(panel, message, "Info", JOptionPane.INFORMATION_MESSAGE)
+        );
+    }
 }

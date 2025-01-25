@@ -1,34 +1,27 @@
 package ec.edu.uce.pokedex.service;
 
+import ec.edu.uce.pokedex.models.Pokemon;
+import ec.edu.uce.pokedex.repository.TypeRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class TypeService {
-    private final WebClient webClient;
 
-    public TypeService(WebClient webClient) {
-        this.webClient = webClient;
+    private final TypeRepository typeRepository;
+
+    public TypeService(TypeRepository typeRepository) {
+        this.typeRepository = typeRepository;
     }
 
-    public Flux<String> getPokemonByType(String typeName) {
-        return webClient.get()
-                .uri("/type/{name}", typeName)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .flatMapMany(response -> Flux.fromIterable((List<Map<String, Object>>) response.get("pokemon")))
-                .map(pokemonData -> (String) ((Map<String, Object>) pokemonData.get("pokemon")).get("name"));
-    }
-
-    public Mono<Map> getTypeDetails(String typeName) {
-        return webClient.get()
-                .uri("/type/{name}", typeName)
-                .retrieve()
-                .bodyToMono(Map.class);
+    /**
+     * Busca todos los Pokémon asociados a un tipo.
+     *
+     * @param typeName Nombre del tipo.
+     * @return Lista de nombres de Pokémon.
+     */
+    public List<Pokemon> getPokemonByType(String typeName) {
+        return typeRepository.findPokemonsByTypeName(typeName);
     }
 }

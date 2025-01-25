@@ -1,63 +1,65 @@
 package ec.edu.uce.pokedex.service;
 
 import ec.edu.uce.pokedex.dto.PokemonDto;
+import ec.edu.uce.pokedex.models.*;
+import ec.edu.uce.pokedex.repository.PokemonRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class PokeServiceDto {
-    private final WebClient webClient;
 
-    public PokeServiceDto(WebClient webClient) {
-        this.webClient = webClient;
-    }
+    private final PokemonRepository pokemonRepository;
 
     /**
-     * Fetches a simplified Pokémon DTO with selected fields.
+     * Fetches a simplified Pokémon DTO with selected fields from the database.
      *
      * @param name Pokémon name.
-     * @return Mono containing PokemonDto.
+     * @return Optional containing PokemonDto, empty if the Pokémon does not exist.
      */
-    public Mono<PokemonDto> getPokemonDtoByName(String name) {
-        return webClient.get()
-                .uri("/pokemon/{name}", name)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(this::mapToPokemonDto);
+    public Optional<PokemonDto> getPokemonDtoByName(String name) {
+        // Buscar el Pokémon por nombre en la base de datos
+        Optional<Pokemon> pokemonOptional = Optional.ofNullable(pokemonRepository.findByNameIgnoreCase(name));
+
+        // Si el Pokémon existe, mapear al DTO
+        return pokemonOptional.map(this::mapToPokemonDto);
     }
 
     /**
-     * Maps the API response to a PokemonDto.
+     * Maps a Pokémon entity to a Pokémon DTO.
      *
-     * @param response API response as a Map.
+     * @param pokemon Pokémon entity.
      * @return PokemonDto object.
      */
-    private PokemonDto mapToPokemonDto(Map<String, Object> response) {
+    private PokemonDto mapToPokemonDto(Pokemon pokemon) {
         PokemonDto dto = new PokemonDto();
 
-        dto.setName((String) response.get("name"));
+        // Mapear datos básicos
+        dto.setName(pokemon.getName());
+        dto.setSpriteUrl(pokemon.getSprites().getFrontDefault());
 
-        // Extract the first type
-        List<Map<String, Object>> types = (List<Map<String, Object>>) response.get("types");
-        if (!types.isEmpty()) {
-            Map<String, Object> type = (Map<String, Object>) types.get(0).get("type");
-            dto.setType((String) type.get("name"));
-        }
+        // Mapear tipos
+        dto.setTypes(
+                pokemon.getTypes().stream()
+                        .map(type -> new Type(type.getSlot(), type.getName(), type.getUrl()))
+                        .collect(Collectors.toList())
+        );
 
-        // Extract the first ability
-        List<Map<String, Object>> abilities = (List<Map<String, Object>>) response.get("abilities");
-        if (!abilities.isEmpty()) {
-            Map<String, Object> ability = (Map<String, Object>) abilities.get(0).get("ability");
-            dto.setAbility((String) ability.get("name"));
-        }
-
-        // Extract the front default sprite
-        Map<String, Object> sprites = (Map<String, Object>) response.get("sprites");
-        dto.setSpriteUrl((String) sprites.get("front_default"));
+        // Mapear habilidades
+        dto.setAbilities(
+                pokemon.getAbilities().stream()
+                        .map(ability -> new Ability(
+                                ability.getName(),
+                                ability.getUrl(),
+                                ability.isHidden(),
+                                ability.getSlot()
+                        ))
+                        .collect(Collectors.toList())
+        );
 
         return dto;
     }

@@ -1,11 +1,10 @@
 package ec.edu.uce.pokedex.controller;
 
+import ec.edu.uce.pokedex.models.Pokemon;
 import ec.edu.uce.pokedex.service.TypeService;
 import org.springframework.stereotype.Controller;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
-import java.util.Map;
+import java.util.List;
 
 @Controller
 public class TypeController {
@@ -17,22 +16,12 @@ public class TypeController {
     }
 
     /**
-     * Retrieves Pokémon names associated with a given type.
+     * Busca todos los Pokémon asociados a un tipo.
      *
-     * @param typeName Name of the type.
-     * @return Flux of Pokémon names.
+     * @param typeName Nombre del tipo.
+     * @return Lista de nombres de Pokémon.
      */
-    public Flux<String> getPokemonByType(String typeName) {
+    public List<Pokemon> getPokemonByType(String typeName) {
         return typeService.getPokemonByType(typeName);
-    }
-
-    /**
-     * Retrieves detailed information about a type.
-     *
-     * @param typeName Name of the type.
-     * @return Mono containing type details as a Map.
-     */
-    public Mono<Map> getTypeDetails(String typeName) {
-        return typeService.getTypeDetails(typeName);
     }
 }

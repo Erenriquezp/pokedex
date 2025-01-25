@@ -1,34 +1,26 @@
 package ec.edu.uce.pokedex.service;
 
 import ec.edu.uce.pokedex.models.Stat;
+import ec.edu.uce.pokedex.repository.StatRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class StatService {
-    private final WebClient webClient;
+    private final StatRepository statRepository;
 
-    public StatService(WebClient webClient) {
-        this.webClient = webClient;
+    public StatService(StatRepository statRepository) {
+        this.statRepository = statRepository;
     }
 
-    public Flux<Stat> getStatsForPokemon(String pokemonName) {
-        return webClient.get()
-                .uri("/pokemon/{name}", pokemonName)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .flatMapMany(response -> Flux.fromIterable((List<Map<String, Object>>) response.get("stats")))
-                .map(statData -> {
-                    Map<String, Object> stat = (Map<String, Object>) statData.get("stat");
-                    return new Stat(
-                            (int) statData.get("base_stat"),
-                            (int) statData.get("effort"),
-                            (String) stat.get("name")
-                    );
-                });
+    /**
+     * Retrieves the stats for a Pokémon from the database.
+     *
+     * @param pokemonName Name of the Pokémon.
+     * @return List of stats.
+     */
+    public List<Stat> getStatsForPokemon(String pokemonName) {
+        return statRepository.findByPokemonName(pokemonName);
     }
 }

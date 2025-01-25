@@ -3,7 +3,8 @@ package ec.edu.uce.pokedex.controller;
 import ec.edu.uce.pokedex.models.Stat;
 import ec.edu.uce.pokedex.service.StatService;
 import org.springframework.stereotype.Controller;
-import reactor.core.publisher.Flux;
+
+import java.util.List;
 
 @Controller
 public class StatController {
@@ -15,12 +16,12 @@ public class StatController {
     }
 
     /**
-     * Retrieves the stats for a given Pokémon name.
+     * Retrieves stats for a Pokémon from the database.
      *
      * @param pokemonName Name of the Pokémon.
-     * @return Flux of Stat objects.
+     * @return List of stats.
      */
-    public Flux<Stat> getStatsForPokemon(String pokemonName) {
+    public List<Stat> getStatsForPokemon(String pokemonName) {
         return statService.getStatsForPokemon(pokemonName);
     }
 }

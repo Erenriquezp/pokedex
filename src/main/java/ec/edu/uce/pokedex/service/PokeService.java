@@ -1,85 +1,114 @@
 package ec.edu.uce.pokedex.service;
 
 import ec.edu.uce.pokedex.models.*;
+import ec.edu.uce.pokedex.repository.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Mono;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Map;
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class PokeService {
-    private final WebClient webClient;
 
-    public PokeService(WebClient webClient) {
-        this.webClient = webClient;
+    private final PokemonRepository pokemonRepository;
+    private final AbilityRepository abilityRepository;
+    private final StatRepository statRepository;
+    private final TypeRepository typeRepository;
+    private final MoveRepository moveRepository;
+    private final ExternalApiService externalApiService;
+
+    /**
+     * Obtiene un Pokémon por su nombre desde la base de datos.
+     *
+     * @param name Nombre del Pokémon.
+     * @return Pokémon si existe en la base de datos.
+     */
+    @Transactional(readOnly = true)
+    public Optional<Pokemon> getPokemonByName(String name) {
+        return Optional.ofNullable(pokemonRepository.findByNameIgnoreCase(name));
     }
 
     /**
-     * Fetches and maps a Pokémon from the API response.
+     * Guarda un Pokémon en la base de datos.
      *
-     * @param name Name of the Pokémon.
-     * @return Mono of Pokemon.
+     * @param pokemon Entidad Pokémon a guardar.
+     * @return Pokémon guardado.
      */
-    public Mono<Pokemon> getPokemonByName(String name) {
-        return webClient.get()
-                .uri("/pokemon/{name}", name)
-                .retrieve()
-                .bodyToMono(Map.class) // Obtener respuesta como Map para mapeo manual
-                .map(this::mapToPokemon) // Mapear manualmente a la clase Pokemon
-                .doOnNext(pokemon -> System.out.println("Pokemon Response: " + pokemon));
+    @Transactional
+    public Pokemon savePokemon(Pokemon pokemon) {
+        return pokemonRepository.save(pokemon);
     }
 
     /**
-     * Maps the API response to a Pokemon object.
+     * Obtiene todos los Pokémon de la base de datos.
      *
-     * @param response The API response as a Map.
-     * @return Pokemon object.
+     * @return Lista de Pokémon.
      */
-    private Pokemon mapToPokemon(Map<String, Object> response) {
-        Pokemon pokemon = new Pokemon();
+    @Transactional(readOnly = true)
+    public List<Pokemon> getAllPokemons() {
+        return pokemonRepository.findAll();
+    }
 
-        // Datos básicos
-        pokemon.setId((int) response.get("id"));
-        pokemon.setName((String) response.get("name"));
-        pokemon.setBaseExperience((int) response.get("base_experience"));
-        pokemon.setHeight((int) response.get("height"));
-        pokemon.setWeight((int) response.get("weight"));
-        pokemon.setOrder((int) response.get("order"));
-
-        // Mapear tipos
-        List<Map<String, Object>> types = (List<Map<String, Object>>) response.get("types");
-        pokemon.setTypes(types.stream().map(typeData -> {
-            Type type = new Type();
-            Map<String, Object> typeInfo = (Map<String, Object>) typeData.get("type");
-            type.setSlot((int) typeData.get("slot"));
-            type.setName((String) typeInfo.get("name"));
-            return type;
-        }).toList());
-
-        // Mapear habilidades
-        List<Map<String, Object>> abilities = (List<Map<String, Object>>) response.get("abilities");
-        pokemon.setAbilities(abilities.stream().map(abilityData -> {
-            Ability ability = new Ability();
-            Map<String, Object> abilityInfo = (Map<String, Object>) abilityData.get("ability");
-            ability.setName((String) abilityInfo.get("name"));
-            ability.setUrl((String) abilityInfo.get("url"));
-            ability.setHidden((boolean) abilityData.get("is_hidden"));
-            ability.setSlot((int) abilityData.get("slot"));
-            return ability;
-        }).toList());
-
-        // Mapear sprites
-        Map<String, Object> spritesData = (Map<String, Object>) response.get("sprites");
-        Sprites sprites = new Sprites();
-        sprites.setFrontDefault((String) spritesData.get("front_default"));
-        sprites.setBackDefault((String) spritesData.get("back_default"));
-        sprites.setFrontShiny((String) spritesData.get("front_shiny"));
-        sprites.setBackShiny((String) spritesData.get("back_shiny"));
-        pokemon.setSprites(sprites);
-
-        // Devolver el objeto mapeado
+    /**
+     * Carga un Pokémon desde la API externa y lo guarda en la base de datos.
+     *
+     * @param name Nombre del Pokémon a cargar.
+     * @return Pokémon cargado y guardado.
+     */
+    @Transactional
+    public Pokemon loadPokemonFromApiAndSave(String name) {
+        Pokemon pokemon = externalApiService.getPokemonFromApi(name);
+        savePokemonData(pokemon);
         return pokemon;
+    }
+
+    /**
+     * Carga todos los Pokémon desde la API externa y los guarda en la base de datos.
+     *
+     * @param limit  Número máximo de Pokémon a cargar.
+     * @param offset Punto de inicio para cargar los Pokémon.
+     */
+    @Transactional
+    public void loadAllPokemonsFromApiAndSave(int limit, int offset) {
+        List<Pokemon> pokemons = externalApiService.getAllPokemonFromApi(limit, offset);
+        pokemons.forEach(this::savePokemonData);
+    }
+
+    /**
+     * Carga y guarda en la base de datos la información asociada a un Pokémon.
+     *
+     * @param pokemon Pokémon a procesar.
+     */
+    @Transactional
+    public void savePokemonData(Pokemon pokemon) {
+        // Guardar el Pokémon
+        Pokemon savedPokemon = pokemonRepository.save(pokemon);
+
+        // Guardar las habilidades
+        pokemon.getAbilities().forEach(ability -> {
+            ability.setPokemon(savedPokemon);
+            abilityRepository.save(ability);
+        });
+
+        // Guardar las estadísticas
+        pokemon.getStats().forEach(stat -> {
+            stat.setPokemon(savedPokemon);
+            statRepository.save(stat);
+        });
+
+        // Guardar los tipos
+        pokemon.getTypes().forEach(type -> {
+            type.setPokemon(savedPokemon);
+            typeRepository.save(type);
+        });
+
+        // Guardar los movimientos
+        pokemon.getMoves().forEach(move -> {
+            move.setPokemon(savedPokemon);
+            moveRepository.save(move);
+        });
     }
 }

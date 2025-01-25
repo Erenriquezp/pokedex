@@ -7,8 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 
-import javax.swing.*;
-
 @SpringBootApplication
 public class PokedexApplication implements CommandLineRunner {
     private final PokedexController controller;
@@ -25,7 +23,7 @@ public class PokedexApplication implements CommandLineRunner {
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         javax.swing.SwingUtilities.invokeLater(controller::startGUI);
 
     }
