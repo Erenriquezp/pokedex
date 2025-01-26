@@ -2,6 +2,7 @@ package ec.edu.uce.pokedex.view;
 
 import ec.edu.uce.pokedex.config.UIConfig;
 import ec.edu.uce.pokedex.controller.StatController;
+import ec.edu.uce.pokedex.exception.StatFetchException;
 import ec.edu.uce.pokedex.models.Stat;
 import ec.edu.uce.pokedex.util.ComponentFactory;
 import lombok.Getter;
@@ -29,9 +30,6 @@ public class StatView {
         initialize();
     }
 
-    /**
-     * Initializes the components of the StatView.
-     */
     private void initialize() {
         JLabel titleLabel = ComponentFactory.createLabel("Pokémon Stats Viewer", 24, SwingConstants.CENTER);
 
@@ -51,11 +49,6 @@ public class StatView {
         searchButton.addActionListener(e -> handleSearch(searchField));
     }
 
-    /**
-     * Handles the search action to fetch stats from the database.
-     *
-     * @param searchField Field where the Pokémon name is entered.
-     */
     private void handleSearch(JTextField searchField) {
         String pokemonName = searchField.getText().trim();
         if (pokemonName.isEmpty()) {
@@ -65,25 +58,36 @@ public class StatView {
         fetchAndDisplayStats(pokemonName);
     }
 
-    /**
-     * Fetches and displays stats for a Pokémon.
-     *
-     * @param pokemonName Name of the Pokémon.
-     */
     private void fetchAndDisplayStats(String pokemonName) {
-        try {
-            List<Stat> stats = controller.getStatsForPokemon(pokemonName);
-            populateTable(stats);
-        } catch (Exception e) {
-            showErrorMessage("Error: Unable to fetch stats from the database.");
-        }
+        SwingWorker<List<Stat>, Void> worker = new SwingWorker<>() {
+            @Override
+            protected List<Stat> doInBackground() {
+                try {
+                    return controller.getStatsForPokemon(pokemonName);
+                } catch (Exception e) {
+                    throw new StatFetchException("Failed to fetch stats for Pokémon: " + pokemonName, e);
+                }
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    List<Stat> stats = get();
+                    if (stats.isEmpty()) {
+                        showInfoMessage("No stats found for Pokémon: " + pokemonName);
+                    } else {
+                        populateTable(stats);
+                    }
+                } catch (StatFetchException e) {
+                    showErrorMessage(e.getMessage());
+                } catch (Exception e) {
+                    showErrorMessage("Unexpected error occurred while fetching stats.");
+                }
+            }
+        };
+        worker.execute();
     }
 
-    /**
-     * Populates the stats table with the given data.
-     *
-     * @param stats List of Stat objects.
-     */
     private void populateTable(List<Stat> stats) {
         SwingUtilities.invokeLater(() -> {
             String[] columnNames = {"Name", "Base Stat", "Effort"};
@@ -95,22 +99,12 @@ public class StatView {
         });
     }
 
-    /**
-     * Displays an error message to the user.
-     *
-     * @param message Error message to display.
-     */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)
         );
     }
 
-    /**
-     * Displays an informational message to the user.
-     *
-     * @param message Informational message to display.
-     */
     private void showInfoMessage(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Info", JOptionPane.INFORMATION_MESSAGE)

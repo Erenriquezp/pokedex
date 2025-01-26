@@ -29,7 +29,7 @@ public class ComponentFactory {
      *
      * @param text      Text to display on the label.
      * @param fontSize  Font size of the label text.
-     * @param alignment Alignment of the label text (e.g., SwingConstants.CENTER).
+     * @param alignment Alignment of the label text (e.g., SwingConstants. CENTER).
      * @return Configured JLabel instance.
      */
     public static JLabel createLabel(String text, int fontSize, int alignment) {
@@ -56,7 +56,7 @@ public class ComponentFactory {
      * Creates a text field with the specified properties.
      *
      * @param columns  Number of columns for the text field.
-     * @param alignment Alignment of the text in the field (e.g., JTextField.CENTER).
+     * @param alignment Alignment of the text in the field (e.g., JTextField. CENTER).
      * @return Configured JTextField instance.
      */
     public static JTextField createTextField(int columns, int alignment) {

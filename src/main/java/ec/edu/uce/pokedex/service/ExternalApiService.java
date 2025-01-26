@@ -1,21 +1,21 @@
 package ec.edu.uce.pokedex.service;
 
 import ec.edu.uce.pokedex.models.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class ExternalApiService {
 
     private final WebClient webClient;
-
-    public ExternalApiService(WebClient webClient) {
-        this.webClient = webClient;
-    }
 
     /**
      * Obtiene los datos de un Pokémon desde la API externa.
@@ -23,13 +23,12 @@ public class ExternalApiService {
      * @param name Nombre del Pokémon.
      * @return Objeto Pokemon mapeado desde la API.
      */
-    public Pokemon getPokemonFromApi(String name) {
+    public Mono<Pokemon> getPokemonFromApi(String name) {
         return webClient.get()
                 .uri("/pokemon/{name}", name.toLowerCase())
                 .retrieve()
                 .bodyToMono(Map.class)
-                .map(this::mapToPokemon)
-                .block(); // Bloqueo para simplificar el flujo y obtener el resultado directamente
+                .map(this::mapToPokemon);
     }
 
     /**
@@ -39,32 +38,19 @@ public class ExternalApiService {
      * @param offset Punto de inicio para obtener los Pokémon.
      * @return Lista de objetos Pokémon mapeados.
      */
-    public List<Pokemon> getAllPokemonFromApi(int limit, int offset) {
-        // Realizar la solicitud inicial para obtener nombres de Pokémon
-        List<String> pokemonNames = webClient.get()
+    public Flux<Pokemon> getAllPokemonFromApi(int limit, int offset) {
+        return webClient.get()
                 .uri("/pokemon?limit={limit}&offset={offset}", limit, offset)
                 .retrieve()
                 .bodyToMono(Map.class)
-                .flatMapIterable(data -> (List<Map<String, Object>>) data.get("results"))
-                .map(result -> (String) result.get("name"))
-                .collect(Collectors.toList())
-                .block();
-
-        // Obtener detalles de cada Pokémon y mapearlos
-        assert pokemonNames != null;
-        return pokemonNames.stream()
-                .map(this::getPokemonFromApi)
-                .collect(Collectors.toList());
+                .flatMapMany(data -> Flux.fromIterable((List<Map<String, Object>>) data.get("results")))
+                .flatMap(result -> getPokemonFromApi((String) result.get("name")));
     }
 
     /**
      * Mapea los datos obtenidos de la API a un objeto Pokemon.
-     *
-     * @param data Datos en formato Map.
-     * @return Objeto Pokemon.
      */
     private Pokemon mapToPokemon(Map<String, Object> data) {
-//        System.out.println("data = " + data);
         Pokemon pokemon = new Pokemon();
         pokemon.setId((int) data.get("id"));
         pokemon.setName((String) data.get("name"));
@@ -72,44 +58,23 @@ public class ExternalApiService {
         pokemon.setHeight((int) data.get("height"));
         pokemon.setWeight((int) data.get("weight"));
         pokemon.setOrderIndex((int) data.get("order"));
-
-        // Mapear habilidades
-        List<Ability> abilities = ((List<Map<String, Object>>) data.get("abilities")).stream()
-                .map(this::mapToAbility)
-                .collect(Collectors.toList());
-        pokemon.setAbilities(abilities);
-
-        // Mapear estadísticas
-        List<Stat> stats = ((List<Map<String, Object>>) data.get("stats")).stream()
-                .map(this::mapToStat)
-                .collect(Collectors.toList());
-        pokemon.setStats(stats);
-
-        // Mapear tipos
-        List<Type> types = ((List<Map<String, Object>>) data.get("types")).stream()
-                .map(this::mapToType)
-                .collect(Collectors.toList());
-        pokemon.setTypes(types);
-
-        // Mapear movimientos
-        List<Move> moves = ((List<Map<String, Object>>) data.get("moves")).stream()
-                .map(this::mapToMove)
-                .collect(Collectors.toList());
-        pokemon.setMoves(moves);
-
-        // Mapear sprites
-        Sprites sprites = mapToSprites((Map<String, Object>) data.get("sprites"));
-        pokemon.setSprites(sprites);
-
+        pokemon.setAbilities(mapList(data, "abilities", this::mapToAbility));
+        pokemon.setStats(mapList(data, "stats", this::mapToStat));
+        pokemon.setTypes(mapList(data, "types", this::mapToType));
+        pokemon.setMoves(mapList(data, "moves", this::mapToMove));
+        pokemon.setSprites(mapToSprites((Map<String, Object>) data.get("sprites")));
         return pokemon;
     }
 
     /**
-     * Mapea los datos de habilidades de la API al modelo Ability.
-     *
-     * @param data Datos de la habilidad.
-     * @return Objeto Ability.
+     * Mapea un listado general a una lista de objetos.
      */
+    private <T> List<T> mapList(Map<String, Object> data, String key, java.util.function.Function<Map<String, Object>, T> mapper) {
+        return ((List<Map<String, Object>>) data.get(key)).stream()
+                .map(mapper)
+                .collect(Collectors.toList());
+    }
+
     private Ability mapToAbility(Map<String, Object> data) {
         Map<String, Object> abilityData = (Map<String, Object>) data.get("ability");
         return new Ability(
@@ -120,12 +85,6 @@ public class ExternalApiService {
         );
     }
 
-    /**
-     * Mapea los datos de estadísticas de la API al modelo Stat.
-     *
-     * @param data Datos de la estadística.
-     * @return Objeto Stat.
-     */
     private Stat mapToStat(Map<String, Object> data) {
         Map<String, Object> statData = (Map<String, Object>) data.get("stat");
         return new Stat(
@@ -135,12 +94,6 @@ public class ExternalApiService {
         );
     }
 
-    /**
-     * Mapea los datos de tipos de la API al modelo Type.
-     *
-     * @param data Datos del tipo.
-     * @return Objeto Type.
-     */
     private Type mapToType(Map<String, Object> data) {
         Map<String, Object> typeData = (Map<String, Object>) data.get("type");
         return new Type(
@@ -150,24 +103,11 @@ public class ExternalApiService {
         );
     }
 
-
     private Move mapToMove(Map<String, Object> data) {
         Map<String, Object> moveData = (Map<String, Object>) data.get("move");
-
-        // Crear y devolver el objeto Move
-        Move move = new Move();
-        move.setName((String) moveData.get("name"));
-        move.setUrl((String) moveData.get("url"));
-
-        return move;
+        return new Move((String) moveData.get("name"), (String) moveData.get("url"));
     }
 
-    /**
-     * Mapea los datos de sprites de la API al modelo Sprites.
-     *
-     * @param data Datos de los sprites.
-     * @return Objeto Sprites.
-     */
     private Sprites mapToSprites(Map<String, Object> data) {
         Sprites sprites = new Sprites();
         sprites.setFrontDefault((String) data.get("front_default"));

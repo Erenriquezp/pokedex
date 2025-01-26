@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -106,8 +106,8 @@ public class SpriteView {
     private void addSpriteIfValid(List<ImageIcon> spriteIcons, String spriteUrl) {
         if (spriteUrl != null && !spriteUrl.isEmpty()) {
             try {
-                URL url = new URL(spriteUrl);
-                ImageIcon spriteIcon = new ImageIcon(url);
+                URI uri = new URI(spriteUrl);
+                ImageIcon spriteIcon = new ImageIcon(uri.toURL());
                 spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
             } catch (Exception ignored) {
                 // Log the error if necessary, but avoid stopping the flow.

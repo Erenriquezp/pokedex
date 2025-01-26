@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -15,20 +14,6 @@ import java.util.stream.Collectors;
 public class PokeServiceDto {
 
     private final PokemonRepository pokemonRepository;
-
-    /**
-     * Fetches a simplified Pokémon DTO with selected fields from the database.
-     *
-     * @param name Pokémon name.
-     * @return Optional containing PokemonDto, empty if the Pokémon does not exist.
-     */
-    public Optional<PokemonDto> getPokemonDtoByName(String name) {
-        // Buscar el Pokémon por nombre en la base de datos
-        Optional<Pokemon> pokemonOptional = Optional.ofNullable(pokemonRepository.findByNameIgnoreCase(name));
-
-        // Si el Pokémon existe, mapear al DTO
-        return pokemonOptional.map(this::mapToPokemonDto);
-    }
 
     /**
      * Maps a Pokémon entity to a Pokémon DTO.

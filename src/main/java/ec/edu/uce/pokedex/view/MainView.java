@@ -7,8 +7,9 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
+import java.util.List;
 
 @Component
 public class MainView {
@@ -28,7 +29,7 @@ public class MainView {
     public void initialize(
             SearchView searchView,
             SpriteView spriteView,
-            HomeView examplePanel,
+            HomeView homeView,
             StatView statView,
             TypeView typeView,
             EvolutionView evolutionView) {
@@ -41,7 +42,7 @@ public class MainView {
         frame.setUndecorated(false);
 
         // Configurar panel principal
-        JPanel mainPanel = createMainPanel(examplePanel, searchView, spriteView, statView, typeView, evolutionView);
+        JPanel mainPanel = createMainPanel(homeView, searchView, spriteView, statView, typeView, evolutionView);
 
         // Crear barra de menú
         JMenuBar menuBar = createMenuBar();
@@ -58,7 +59,7 @@ public class MainView {
     }
 
     private JPanel createMainPanel(
-            HomeView examplePanel,
+            HomeView homeView,
             SearchView searchView,
             SpriteView spriteView,
             StatView statView,
@@ -66,7 +67,7 @@ public class MainView {
             EvolutionView evolutionView) {
 
         JPanel mainPanel = new JPanel(new CardLayout());
-        mainPanel.add(examplePanel.getPanel(), "HomeView");
+        mainPanel.add(homeView.getPanel(), "HomeView");
         mainPanel.add(searchView.getPanel(), "SearchView");
         mainPanel.add(spriteView.getPanel(), "SpriteView");
         mainPanel.add(statView.getPanel(), "StatView");
@@ -76,7 +77,7 @@ public class MainView {
     }
 
     private JPanel createButtonPanel(JPanel mainPanel) {
-        JPanel buttonPanel = new JPanel(new BorderLayout()); // Cambiar a BorderLayout
+        JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(uiConfig.secondaryColor());
 
         // Crear un panel para los botones de navegación
@@ -91,12 +92,11 @@ public class MainView {
         navigationPanel.add(createNavigationButton("View Pokémon by Type", mainPanel, "TypeView"));
 
         // Botón para cargar Pokémon desde la API
-        JButton loadApiButton = ComponentFactory.createButton("Load Data from API", 16, Color.RED, Color.WHITE); // Cambia los colores según sea necesario
+        JButton loadApiButton = ComponentFactory.createButton("Load Data from API", 16, Color.RED, Color.WHITE);
         loadApiButton.addActionListener(createLoadApiAction());
 
-        // Añadir el panel de navegación y el botón de carga al panel principal
-        buttonPanel.add(navigationPanel, BorderLayout.CENTER); // Panel de navegación en el centro
-        buttonPanel.add(loadApiButton, BorderLayout.EAST); // Botón de carga a la derecha
+        buttonPanel.add(navigationPanel, BorderLayout.CENTER);
+        buttonPanel.add(loadApiButton, BorderLayout.EAST);
 
         return buttonPanel;
     }
@@ -130,19 +130,49 @@ public class MainView {
     }
 
     private ActionListener createLoadApiAction() {
-        return (ActionEvent e) -> {
-            int limit = 50; // Configura el número máximo de Pokémon a cargar
-            int offset = 0; // Configura el punto de inicio
+        return e -> {
+            JDialog progressDialog = createProgressDialog();
+            SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+                @Override
+                protected Void doInBackground() {
+                    int limit = 150;
+                    int offset = 0;
+                    for (int i = 0; i < limit; i++) {
+                        try {
+                            pokeService.loadAllPokemonsFromApiAndSave(1, offset++);
+                            publish(i + 1);
+                        } catch (Exception ex) {
+                            System.err.println("Error loading Pokémon: " + ex.getMessage());
+                        }
+                    }
+                    return null;
+                }
 
-            try {
-                System.out.println("Iniciando carga de datos desde la API...");
-                pokeService.loadAllPokemonsFromApiAndSave(limit, offset);
-                System.out.println("Carga de datos completada exitosamente.");
-            } catch (Exception ex) {
-                System.err.println("Error al cargar datos desde la API: " + ex.getMessage());
-                ex.printStackTrace(); // Imprime el seguimiento completo del error
-            }
+                @Override
+                protected void process(List<Integer> chunks) {
+                    int progress = chunks.getLast();
+                    ((JProgressBar) progressDialog.getContentPane().getComponent(0)).setValue(progress);
+                }
+
+                @Override
+                protected void done() {
+                    progressDialog.dispose();
+                    showMessage("Pokémon data loaded successfully!");
+                }
+            };
+            worker.execute();
+            progressDialog.setVisible(true);
         };
+    }
+
+    private JDialog createProgressDialog() {
+        JDialog dialog = new JDialog(frame, "Loading Pokémon", true);
+        JProgressBar progressBar = new JProgressBar(0, 50);
+        progressBar.setStringPainted(true);
+        dialog.getContentPane().add(progressBar, BorderLayout.CENTER);
+        dialog.setSize(300, 100);
+        dialog.setLocationRelativeTo(frame);
+        return dialog;
     }
 
     public void showMessage(String message) {

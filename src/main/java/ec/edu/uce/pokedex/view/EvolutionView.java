@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
@@ -142,8 +142,8 @@ public class EvolutionView {
             @Override
             protected ImageIcon doInBackground() {
                 try {
-                    URL url = new URL(imageUrl);
-                    ImageIcon spriteIcon = new ImageIcon(url);
+                    URI uri = new URI(imageUrl);
+                    ImageIcon spriteIcon = new ImageIcon(uri.toURL());
                     return new ImageIcon(spriteIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
                 } catch (Exception e) {
                     return null;

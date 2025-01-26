@@ -28,7 +28,8 @@ public class SpriteService {
             return sprites;
         }
 
-        Pokemon pokemon = externalApiService.getPokemonFromApi(pokemonName);
+        Pokemon pokemon = externalApiService.getPokemonFromApi(pokemonName).block();
+        assert pokemon != null;
         Sprites fetchedSprites = pokemon.getSprites();
         if (fetchedSprites != null) {
             fetchedSprites.setPokemon(pokemon);

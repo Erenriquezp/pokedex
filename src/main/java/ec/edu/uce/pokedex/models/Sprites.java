@@ -20,6 +20,6 @@ public class Sprites {
     private String frontShinyFemale;
     private String backShinyFemale;
 
-    @OneToOne(mappedBy = "sprites", fetch = FetchType.LAZY) // Relación inversa con Pokémon
+    @OneToOne(mappedBy = "sprites") // Relación inversa con Pokémon
     private Pokemon pokemon;
 }

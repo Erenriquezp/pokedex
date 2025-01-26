@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
-import java.util.List;
+import java.net.URI;
 
 @Component
 public class SearchView {
@@ -145,8 +144,8 @@ public class SearchView {
 
                 // Cargar imagen
                 try {
-                    URL spriteUrl = new URL(pokemon.getSprites().getFrontDefault());
-                    ImageIcon spriteIcon = new ImageIcon(spriteUrl);
+                    URI uri = new URI(pokemon.getSprites().getFrontDefault());
+                    ImageIcon spriteIcon = new ImageIcon(uri.toURL());
                     imageLabel.setIcon(new ImageIcon(spriteIcon.getImage().getScaledInstance(300, 300, Image.SCALE_SMOOTH)));
                 } catch (Exception e) {
                     imageLabel.setText("Image not available");

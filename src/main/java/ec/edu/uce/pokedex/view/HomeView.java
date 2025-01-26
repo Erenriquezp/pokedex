@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 import javax.swing.*;
 import java.awt.*;
 import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 
 @Component
@@ -129,7 +129,8 @@ public class HomeView {
     private JLabel createSpriteLabel(String spriteUrl) {
         JLabel spriteLabel = new JLabel();
         try {
-            spriteLabel.setIcon(new ImageIcon(new URL(spriteUrl)));
+            URI uri = new URI(spriteUrl);
+            spriteLabel.setIcon(new ImageIcon(uri.toURL()));
         } catch (MalformedURLException e) {
             spriteLabel.setText("Invalid image URL");
             spriteLabel.setFont(uiConfig.labelFont());

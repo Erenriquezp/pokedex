@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 import javax.swing.*;
 import java.awt.*;
-import java.net.URL;
+import java.net.URI;
 import java.util.List;
 
 @Component
@@ -127,13 +127,12 @@ public class TypeView {
     }
 
     private void loadImage(String spriteUrl, JLabel spriteLabel) {
-        SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
+        new SwingWorker<ImageIcon, Void>() {
             @Override
             protected ImageIcon doInBackground() {
                 try {
-                    URL url = new URL(spriteUrl);
-                    ImageIcon spriteIcon = new ImageIcon(url);
-                    return new ImageIcon(spriteIcon.getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
+                    URI uri = new URI(spriteUrl);
+                    return new ImageIcon(new ImageIcon(uri.toURL()).getImage().getScaledInstance(150, 150, Image.SCALE_SMOOTH));
                 } catch (Exception e) {
                     return null;
                 }
@@ -147,17 +146,14 @@ public class TypeView {
                         spriteLabel.setIcon(spriteIcon);
                     } else {
                         spriteLabel.setText("Image not available");
-                        spriteLabel.setFont(uiConfig.labelFont());
                     }
                 } catch (Exception e) {
                     spriteLabel.setText("Error loading image");
-                    spriteLabel.setFont(uiConfig.labelFont());
                 }
+                spriteLabel.setFont(uiConfig.labelFont());
             }
-        };
-        worker.execute();
+        }.execute();
     }
-
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)
