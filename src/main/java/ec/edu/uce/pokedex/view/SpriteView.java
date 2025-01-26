@@ -25,28 +25,28 @@ public class SpriteView {
     public SpriteView(SpriteController controller, UIConfig uiConfig) {
         this.controller = controller;
         this.uiConfig = uiConfig;
-        this.panel = new JPanel(new BorderLayout());
+        this.panel = new JPanel(new BorderLayout(10, 10));
         initialize();
     }
 
     private void initialize() {
-        JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon Sprites", 18, SwingConstants.CENTER);
+        JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon Sprites", 35, SwingConstants.CENTER);
 
-        JTextField searchField = ComponentFactory.createTextField(20, JTextField.CENTER);
-        JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        JTextField searchField = createSearchField();
+        JButton searchButton = createSearchButton();
 
-        JPanel inputPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        inputPanel.add(searchField);
-        inputPanel.add(searchButton);
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
 
-        JPanel spritePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        JPanel spritePanel = new JPanel();
         JScrollPane scrollPane = ComponentFactory.createScrollPane(spritePanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-        spritePanel.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
+
         spritePanel.setBackground(uiConfig.secondaryColor());
 
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(inputPanel, BorderLayout.NORTH);
+        panel.add(searchPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
         searchButton.addActionListener(e -> {
@@ -57,6 +57,18 @@ public class SpriteView {
             }
             fetchAndDisplaySprites(pokemonName, spritePanel);
         });
+    }
+
+    private JTextField createSearchField() {
+        JTextField searchField = new JTextField(20);
+        searchField.setFont(uiConfig.labelFont());
+        searchField.setHorizontalAlignment(JTextField.CENTER);
+        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
+        return searchField;
+    }
+
+    private JButton createSearchButton() {
+        return ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
     }
 
     private void fetchAndDisplaySprites(String pokemonName, JPanel spritePanel) {
@@ -124,8 +136,7 @@ public class SpriteView {
                     "Front Female", "Back Female", "Front Shiny Female", "Back Shiny Female"
             };
 
-            int rows = (int) Math.ceil(spriteIcons.size() / 3.0);
-            spritePanel.setLayout(new GridLayout(rows, 3, 10, 10));
+            spritePanel.setLayout(new GridLayout(0, 3, 10, 10));
 
             for (int i = 0; i < spriteIcons.size(); i++) {
                 ImageIcon spriteIcon = spriteIcons.get(i);

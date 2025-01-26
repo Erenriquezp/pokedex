@@ -22,4 +22,6 @@ public class UIConfig {
     public Color secondaryColor() {
         return Color.WHITE;
     }
+
+    public Color tertiaryColor() {return Color.BLACK;}
 }
