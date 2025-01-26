@@ -67,6 +67,7 @@ public class EvolutionView {
         JTextField searchField = new JTextField(20);
         searchField.setFont(uiConfig.labelFont());
         searchField.setHorizontalAlignment(JTextField.CENTER);
+        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
         return searchField;
     }
 
@@ -116,7 +117,7 @@ public class EvolutionView {
 
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
-        stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
+        stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 2));
         stagePanel.setBackground(uiConfig.secondaryColor());
 
         Map<String, Object> species = (Map<String, Object>) stage.get("species");

@@ -57,6 +57,7 @@ public class TypeView {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
+        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
         return searchPanel;
     }
 
@@ -108,7 +109,7 @@ public class TypeView {
 
     private JPanel createPokemonCard(Pokemon pokemon) {
         JPanel card = new JPanel(new BorderLayout());
-        card.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
+        card.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 2));
         card.setBackground(uiConfig.secondaryColor());
 
         JLabel nameLabel = ComponentFactory.createLabel(pokemon.getName().toUpperCase(), 14, SwingConstants.CENTER);

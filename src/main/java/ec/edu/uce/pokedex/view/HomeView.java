@@ -22,7 +22,7 @@ public class HomeView {
     private final JPanel panel;
     private final PokeServiceDto pokeServiceDto;
     private final UIConfig uiConfig;
-    private int offset = 0; // Controla la posición actual de paginación
+    private int offset = 0;
 
     public HomeView(PokeServiceDto pokeServiceDto, UIConfig uiConfig) {
         this.pokeServiceDto = pokeServiceDto;
@@ -31,19 +31,15 @@ public class HomeView {
         initialize();
     }
 
-    /**
-     * Initializes the panel with paginated Pokémon examples.
-     */
     private void initialize() {
-        JLabel titleLabel = ComponentFactory.createLabel("Pokédex - Home", 24, SwingConstants.CENTER);
+        JLabel titleLabel = ComponentFactory.createLabel("Pokédex - Home", 35, SwingConstants.CENTER);
 
-        JPanel pokemonPanel = new JPanel(new GridLayout(2, 3, 10, 10));
-        JScrollPane scrollPane = new JScrollPane(pokemonPanel);
+        JPanel pokemonPanel = new JPanel(new GridLayout(2, 3, 15, 15));
+        JScrollPane scrollPane = ComponentFactory.createScrollPane(pokemonPanel);
 
-        JButton backButton = ComponentFactory.createButton("Back", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
-        JButton nextButton = ComponentFactory.createButton("Next", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        JButton backButton = ComponentFactory.createButton("Back", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        JButton nextButton = ComponentFactory.createButton("Next", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
 
-        // Acción para retroceder
         backButton.addActionListener(e -> {
             if (offset > 0) {
                 offset -= 6;
@@ -53,17 +49,16 @@ public class HomeView {
             }
         });
 
-        // Acción para avanzar
         nextButton.addActionListener(e -> {
             offset += 6;
             loadPokemonPage(pokemonPanel);
         });
 
-        // Panel inferior con botones de navegación
-        JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        JPanel navigationPanel = ComponentFactory.createPanel(new FlowLayout(FlowLayout.CENTER), uiConfig.secondaryColor());
         navigationPanel.add(backButton);
         navigationPanel.add(nextButton);
 
+        panel.setBackground(uiConfig.secondaryColor());
         panel.add(titleLabel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
         panel.add(navigationPanel, BorderLayout.SOUTH);
@@ -71,11 +66,6 @@ public class HomeView {
         loadPokemonPage(pokemonPanel);
     }
 
-    /**
-     * Loads a page of Pokémon from the database and populates the panel.
-     *
-     * @param pokemonPanel Panel to populate with Pokémon cards.
-     */
     private void loadPokemonPage(JPanel pokemonPanel) {
         try {
             List<PokemonDto> pokemonDtos = pokeServiceDto.getPokemonPage(offset, 6);
@@ -91,45 +81,34 @@ public class HomeView {
         }
     }
 
-    /**
-     * Creates a card for a Pokémon.
-     *
-     * @param dto The PokemonDto object.
-     * @return JPanel representing the Pokémon card.
-     */
     private JPanel createPokemonCard(PokemonDto dto) {
-        JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
-        card.setBackground(uiConfig.secondaryColor());
+        JPanel card = ComponentFactory.createPanel(new BorderLayout(10, 10), uiConfig.secondaryColor());
+        card.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 3));
 
-        JLabel nameLabel = ComponentFactory.createLabel(dto.getName().toUpperCase(), 16, SwingConstants.CENTER);
+        JLabel nameLabel = ComponentFactory.createLabel(dto.getName().toUpperCase(), 25, SwingConstants.CENTER);
 
-        JLabel typeLabel = createTypeLabel(dto.getTypes().stream().map(Type::getName).distinct().toList());
-        JLabel abilityLabel = createAbilityLabel(dto.getAbilities().stream().map(Ability::getName).distinct().toList());
         JLabel spriteLabel = createSpriteLabel(dto.getSpriteUrl());
+
+        JPanel typeLabel = createTypeLabel(dto.getTypes().stream().map(Type::getName).distinct().toList());
+        JPanel abilityLabel = createAbilityLabel(dto.getAbilities().stream().map(Ability::getName).distinct().toList());
+
+        JPanel detailsPanel = ComponentFactory.createPanel(new GridLayout(2, 1, 5, 5), uiConfig.secondaryColor());
+        detailsPanel.add(typeLabel);
+        detailsPanel.add(abilityLabel);
 
         card.add(nameLabel, BorderLayout.NORTH);
         card.add(spriteLabel, BorderLayout.CENTER);
-
-        JPanel detailsPanel = new JPanel(new GridLayout(2, 1));
-        detailsPanel.add(typeLabel);
-        detailsPanel.add(abilityLabel);
-        detailsPanel.setBackground(uiConfig.secondaryColor());
         card.add(detailsPanel, BorderLayout.SOUTH);
 
         return card;
     }
 
-    /**
-     * Creates a JLabel for the Pokémon sprite.
-     *
-     * @param spriteUrl URL of the Pokémon sprite.
-     * @return JLabel with the sprite or an error message.
-     */
     private JLabel createSpriteLabel(String spriteUrl) {
         JLabel spriteLabel = new JLabel();
         try {
-            spriteLabel.setIcon(new ImageIcon(new URL(spriteUrl)));
+            ImageIcon spriteIcon = new ImageIcon(new URL(spriteUrl));
+            Image scaledImage = spriteIcon.getImage().getScaledInstance(170, 170, Image.SCALE_SMOOTH);
+            spriteLabel.setIcon(new ImageIcon(scaledImage));
         } catch (MalformedURLException e) {
             spriteLabel.setText("Invalid image URL");
             spriteLabel.setFont(uiConfig.labelFont());
@@ -141,33 +120,32 @@ public class HomeView {
         return spriteLabel;
     }
 
-    /**
-     * Creates a JLabel for the Pokémon types.
-     *
-     * @param types List of types.
-     * @return JLabel with the types' information.
-     */
-    private JLabel createTypeLabel(List<String> types) {
-        String typeNames = String.join(", ", types);
-        return ComponentFactory.createLabel("Types: " + typeNames, 16, SwingConstants.CENTER);
+    private JPanel createTypeLabel(List<String> types) {
+        JLabel typeTitleLabel = ComponentFactory.createLabel("Types: ", 18, SwingConstants.LEFT);
+        typeTitleLabel.setForeground(uiConfig.primaryColor());
+
+        JLabel typeContentLabel = ComponentFactory.createLabel(String.join(", ", types), 16, SwingConstants.LEFT);
+
+        JPanel typePanel = ComponentFactory.createPanel(new BorderLayout(), uiConfig.secondaryColor());
+        typePanel.add(typeTitleLabel, BorderLayout.NORTH);
+        typePanel.add(typeContentLabel, BorderLayout.CENTER);
+
+        return typePanel;
     }
 
-    /**
-     * Creates a JLabel for the Pokémon abilities.
-     *
-     * @param abilities List of abilities.
-     * @return JLabel with the abilities' information.
-     */
-    private JLabel createAbilityLabel(List<String> abilities) {
-        String abilityNames = String.join(", ", abilities);
-        return ComponentFactory.createLabel("Abilities: " + abilityNames, 16, SwingConstants.CENTER);
+    private JPanel createAbilityLabel(List<String> abilities) {
+        JLabel abilityTitleLabel = ComponentFactory.createLabel("Abilities: ", 18, SwingConstants.LEFT);
+        abilityTitleLabel.setForeground(uiConfig.primaryColor());
+
+        JLabel abilityContentLabel = ComponentFactory.createLabel(String.join(", ", abilities), 16, SwingConstants.LEFT);
+
+        JPanel abilityPanel = ComponentFactory.createPanel(new BorderLayout(), uiConfig.secondaryColor());
+        abilityPanel.add(abilityTitleLabel, BorderLayout.NORTH);
+        abilityPanel.add(abilityContentLabel, BorderLayout.CENTER);
+
+        return abilityPanel;
     }
 
-    /**
-     * Displays an error message to the user.
-     *
-     * @param message Error message to display.
-     */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)
