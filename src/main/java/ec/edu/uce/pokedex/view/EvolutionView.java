@@ -63,6 +63,11 @@ public class EvolutionView {
         });
     }
 
+    /**
+     * Creates the search field with styling.
+     *
+     * @return JTextField styled search field.
+     */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(20);
         searchField.setFont(uiConfig.labelFont());
@@ -71,6 +76,12 @@ public class EvolutionView {
         return searchField;
     }
 
+    /**
+     * Fetches and displays the evolution chain for a given Pokémon species.
+     *
+     * @param speciesName   Name of the Pokémon species.
+     * @param evolutionPanel Panel to display the evolution chain.
+     */
     private void fetchAndDisplayEvolutionChain(String speciesName, JPanel evolutionPanel) {
         SwingWorker<List<Map<String, Object>>, Void> worker = new SwingWorker<>() {
             @Override
@@ -101,6 +112,12 @@ public class EvolutionView {
         worker.execute();
     }
 
+    /**
+     * Populates the evolution panel with data.
+     *
+     * @param chain          List of evolution stages.
+     * @param evolutionPanel Panel to populate with evolution details.
+     */
     private void populateEvolutionPanel(List<Map<String, Object>> chain, JPanel evolutionPanel) {
         SwingUtilities.invokeLater(() -> {
             evolutionPanel.removeAll();
@@ -115,6 +132,12 @@ public class EvolutionView {
         });
     }
 
+    /**
+     * Creates a panel for an evolution stage.
+     *
+     * @param stage Map containing the evolution stage data.
+     * @return JPanel representing the evolution stage.
+     */
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
         stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 2));
@@ -135,6 +158,12 @@ public class EvolutionView {
         return stagePanel;
     }
 
+    /**
+     * Creates a JLabel for the Pokémon sprite.
+     *
+     * @param imageUrl URL of the Pokémon sprite.
+     * @return JLabel with the sprite or an error message.
+     */
     private JLabel createSpriteLabel(String imageUrl) {
         JLabel spriteLabel = new JLabel();
         spriteLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -172,11 +201,22 @@ public class EvolutionView {
         return spriteLabel;
     }
 
+    /**
+     * Extracts the Pokémon ID from the species URL.
+     *
+     * @param url URL of the species.
+     * @return Extracted Pokémon ID.
+     */
     private String extractIdFromUrl(String url) {
         String[] parts = url.split("/");
         return parts[parts.length - 1];
     }
 
+    /**
+     * Displays an error message to the user.
+     *
+     * @param message Error message to display.
+     */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)

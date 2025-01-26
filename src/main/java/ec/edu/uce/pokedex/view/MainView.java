@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
-
 import java.util.List;
 
 @Component
@@ -37,7 +36,6 @@ public class MainView {
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        // Configurar la ventana a pantalla completa
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(false);
 
@@ -49,12 +47,19 @@ public class MainView {
         frame.setJMenuBar(menuBar);
 
         // Crear panel de botones de navegación
-        JPanel buttonPanel = createButtonPanel(mainPanel);
+        JPanel buttonPanel = createButtonPanel(mainPanel, homeView);
 
-        // Configurar el frame
         frame.setLayout(new BorderLayout());
         frame.add(buttonPanel, BorderLayout.NORTH);
         frame.add(mainPanel, BorderLayout.CENTER);
+
+        // Verificar si hay datos en la base de datos
+        if (pokeService.getPokemonByName("ditto").isPresent()) {
+            ((CardLayout) mainPanel.getLayout()).show(mainPanel, "HomeView");
+        } else {
+            showInitialMessage(mainPanel);
+        }
+
         frame.setVisible(true);
     }
 
@@ -76,11 +81,10 @@ public class MainView {
         return mainPanel;
     }
 
-    private JPanel createButtonPanel(JPanel mainPanel) {
+    private JPanel createButtonPanel(JPanel mainPanel, HomeView homeView) {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(uiConfig.secondaryColor());
 
-        // Crear un panel para los botones de navegación
         JPanel navigationPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 10));
         navigationPanel.setBackground(uiConfig.secondaryColor());
 
@@ -91,9 +95,8 @@ public class MainView {
         navigationPanel.add(createNavigationButton("View Evolution Chain", mainPanel, "EvolutionView"));
         navigationPanel.add(createNavigationButton("View Pokémon by Type", mainPanel, "TypeView"));
 
-        // Botón para cargar Pokémon desde la API
         JButton loadApiButton = ComponentFactory.createButton("Load Data from API", 16, Color.RED, Color.WHITE);
-        loadApiButton.addActionListener(createLoadApiAction());
+        loadApiButton.addActionListener(createLoadApiAction(mainPanel, homeView));
 
         buttonPanel.add(navigationPanel, BorderLayout.CENTER);
         buttonPanel.add(loadApiButton, BorderLayout.EAST);
@@ -129,18 +132,25 @@ public class MainView {
         return menuBar;
     }
 
-    private ActionListener createLoadApiAction() {
+    private ActionListener createLoadApiAction(JPanel mainPanel, HomeView homeView) {
         return e -> {
             JDialog progressDialog = createProgressDialog();
+            JProgressBar progressBar = (JProgressBar) progressDialog.getContentPane().getComponent(0);
+
             SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+                private int progress = 0;
+
                 @Override
                 protected Void doInBackground() {
-                    int limit = 150;
                     int offset = 0;
-                    for (int i = 0; i < limit; i++) {
+
+                    // Número total de Pokémon a cargar
+                    int totalPokemons = 1025;
+                    for (int i = 0; i < totalPokemons; i++) {
                         try {
                             pokeService.loadAllPokemonsFromApiAndSave(1, offset++);
-                            publish(i + 1);
+                            progress++;
+                            publish(progress); // Publicar el progreso actual
                         } catch (Exception ex) {
                             System.err.println("Error loading Pokémon: " + ex.getMessage());
                         }
@@ -150,16 +160,34 @@ public class MainView {
 
                 @Override
                 protected void process(List<Integer> chunks) {
-                    int progress = chunks.getLast();
-                    ((JProgressBar) progressDialog.getContentPane().getComponent(0)).setValue(progress);
+                    int latestProgress = chunks.getLast();
+                    progressBar.setValue(latestProgress); // Actualizar el valor de la barra de progreso
                 }
 
                 @Override
                 protected void done() {
                     progressDialog.dispose();
                     showMessage("Pokémon data loaded successfully!");
+
+                    // Precargar la vista Home en un nuevo hilo
+                    new SwingWorker<Void, Void>() {
+                        @Override
+                        protected Void doInBackground() {
+                            homeView.refreshView(); // Preparar los datos de la vista Home
+                            return null;
+                        }
+
+                        @Override
+                        protected void done() {
+                            SwingUtilities.invokeLater(() -> {
+                                ((CardLayout) mainPanel.getLayout()).show(mainPanel, "HomeView");
+                            });
+                        }
+                    }.execute();
                 }
             };
+
+            progressBar.setMaximum(1025); // Establecer el máximo de la barra de progreso
             worker.execute();
             progressDialog.setVisible(true);
         };
@@ -167,12 +195,20 @@ public class MainView {
 
     private JDialog createProgressDialog() {
         JDialog dialog = new JDialog(frame, "Loading Pokémon", true);
-        JProgressBar progressBar = new JProgressBar(0, 50);
+        JProgressBar progressBar = new JProgressBar(0, 1000);
         progressBar.setStringPainted(true);
         dialog.getContentPane().add(progressBar, BorderLayout.CENTER);
         dialog.setSize(300, 100);
         dialog.setLocationRelativeTo(frame);
         return dialog;
+    }
+
+    private void showInitialMessage(JPanel mainPanel) {
+        JPanel messagePanel = new JPanel(new BorderLayout());
+        JLabel messageLabel = ComponentFactory.createLabel("No data found. Please use the 'Load Data from API' button.", 20, SwingConstants.CENTER);
+        messagePanel.add(messageLabel, BorderLayout.CENTER);
+        mainPanel.add(messagePanel, "NoDataView");
+        ((CardLayout) mainPanel.getLayout()).show(mainPanel, "NoDataView");
     }
 
     public void showMessage(String message) {

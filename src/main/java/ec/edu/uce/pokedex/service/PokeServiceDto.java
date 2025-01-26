@@ -4,6 +4,9 @@ import ec.edu.uce.pokedex.dto.PokemonDto;
 import ec.edu.uce.pokedex.models.*;
 import ec.edu.uce.pokedex.repository.PokemonRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,40 +25,23 @@ public class PokeServiceDto {
      * @return PokemonDto object.
      */
     private PokemonDto mapToPokemonDto(Pokemon pokemon) {
-        PokemonDto dto = new PokemonDto();
-
-        // Mapear datos básicos
-        dto.setName(pokemon.getName());
-        dto.setSpriteUrl(pokemon.getSprites().getFrontDefault());
-
-        // Mapear tipos
-        dto.setTypes(
-                pokemon.getTypes().stream()
+        return PokemonDto.builder()
+                .name(pokemon.getName())
+                .spriteUrl(pokemon.getSprites().getFrontDefault())
+                .types(pokemon.getTypes().stream()
                         .map(type -> new Type(type.getSlot(), type.getName(), type.getUrl()))
-                        .collect(Collectors.toList())
-        );
-
-        // Mapear habilidades
-        dto.setAbilities(
-                pokemon.getAbilities().stream()
-                        .map(ability -> new Ability(
-                                ability.getName(),
-                                ability.getUrl(),
-                                ability.isHidden(),
-                                ability.getSlot()
-                        ))
-                        .collect(Collectors.toList())
-        );
-
-        return dto;
+                        .collect(Collectors.toList()))
+                .abilities(pokemon.getAbilities().stream()
+                        .map(ability -> new Ability(ability.getName(), ability.getUrl(), ability.isHidden(), ability.getSlot()))
+                        .collect(Collectors.toList()))
+                .build();
     }
 
+    @Cacheable("pokemons")
     public List<PokemonDto> getPokemonPage(int offset, int limit) {
-        return pokemonRepository.findAll().stream()
-                .skip(offset)
-                .limit(limit)
-                .map(this::mapToPokemonDto)
-                .collect(Collectors.toList());
+        Page<PokemonDto> pokemonPage = pokemonRepository.findAll(PageRequest.of(offset, limit))
+                .map(this::mapToPokemonDto);
+        return pokemonPage.getContent();
     }
 
 }
