@@ -16,10 +16,10 @@ public class StatController {
     }
 
     /**
-     * Retrieves stats for a Pokémon from the database.
+     * Obtiene las estadísticas de un Pokémon de la base de datos.
      *
-     * @param pokemonName Name of the Pokémon.
-     * @return List of stats.
+     * @param pokemonName Nombre del Pokémon.
+     * @return Lista de estadísticas.
      */
     public List<Stat> getStatsForPokemon(String pokemonName) {
         return statService.getStatsForPokemon(pokemonName);

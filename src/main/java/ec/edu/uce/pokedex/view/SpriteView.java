@@ -15,8 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The SpriteView class is responsible for displaying the user interface for searching and displaying Pokémon sprites.
- * It allows users to search for a Pokémon by name and see various sprite images (front, back, shiny, etc.).
+ * La clase SpriteView es responsable de mostrar la interfaz de usuario para buscar y visualizar sprites de Pokémon.
+ * Permite a los usuarios buscar un Pokémon por nombre y ver varias imágenes de sprites (frontal, posterior, shiny, etc.).
  */
 @Component
 public class SpriteView {
@@ -27,11 +27,11 @@ public class SpriteView {
     private final UIConfig uiConfig;
 
     /**
-     * Constructor for SpriteView.
-     * Initializes the UI components and sets up the event listeners.
+     * Constructor de SpriteView.
+     * Inicializa los componentes de la interfaz de usuario y configura los detectores de eventos.
      *
-     * @param controller The controller responsible for fetching sprite data.
-     * @param uiConfig   The configuration for UI styling.
+     * @param controller El controlador responsable de obtener los datos de los sprites.
+     * @param uiConfig La configuración para el estilo de la interfaz de usuario.
      */
     public SpriteView(SpriteController controller, UIConfig uiConfig) {
         this.controller = controller;
@@ -41,8 +41,8 @@ public class SpriteView {
     }
 
     /**
-     * Initializes the UI components including the title, search bar, and sprite panel.
-     * Sets up the layout and event listeners for the search button.
+     * Inicializa los componentes de la interfaz de usuario, incluidos el título, la barra de búsqueda y el panel de sprites.
+     * Configura el diseño y los detectores de eventos para el botón de búsqueda.
      */
     private void initialize() {
         // Create title with style and margins
@@ -84,9 +84,9 @@ public class SpriteView {
     }
 
     /**
-     * Creates and returns a JTextField for the search bar.
+     * Crea y devuelve un JTextField para la barra de búsqueda.
      *
-     * @return The JTextField component for entering Pokémon names.
+     * @return El componente JTextField para ingresar nombres de Pokémon.
      */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(20);
@@ -97,19 +97,19 @@ public class SpriteView {
     }
 
     /**
-     * Creates and returns a JButton for the search functionality.
+     * Crea y devuelve un JButton para la función de búsqueda.
      *
-     * @return The JButton component for initiating a Pokémon sprite search.
+     * @return El componente JButton para iniciar una búsqueda de sprites de Pokémon.
      */
     private JButton createSearchButton() {
         return ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
     }
 
     /**
-     * Fetches the Pokémon sprites asynchronously based on the provided name and displays them on the sprite panel.
+     * Obtiene los sprites de Pokémon de forma asincrónica en función del nombre proporcionado y los muestra en el panel de sprites.
      *
-     * @param pokemonName The name of the Pokémon to search for.
-     * @param spritePanel The panel where the sprites will be displayed.
+     * @param pokemonName El nombre del Pokémon que se buscará.
+     * @param spritePanel El panel donde se mostrarán los sprites.
      */
     private void fetchAndDisplaySprites(String pokemonName, JPanel spritePanel) {
         SwingWorker<List<ImageIcon>, Void> worker = new SwingWorker<>() {
@@ -139,10 +139,10 @@ public class SpriteView {
     }
 
     /**
-     * Loads and returns a list of ImageIcons based on the provided sprite URLs.
+     * Carga y devuelve una lista de ImageIcons en función de las URL de sprites proporcionadas.
      *
-     * @param sprites The Sprites object containing URLs for various sprite types.
-     * @return A list of ImageIcons for the valid sprites.
+     * @param sprites El objeto Sprites que contiene las URL de varios tipos de sprites.
+     * @return Una lista de ImageIcons para los sprites válidos.
      */
     private List<ImageIcon> loadSprites(Sprites sprites) {
         List<ImageIcon> spriteIcons = new ArrayList<>();
@@ -162,10 +162,10 @@ public class SpriteView {
     }
 
     /**
-     * Adds a sprite to the list of ImageIcons if the sprite URL is valid.
+     * Agrega un sprite a la lista de ImageIcons si la URL del sprite es válida.
      *
-     * @param spriteIcons The list of ImageIcons to add the sprite to.
-     * @param spriteUrl   The URL of the sprite image to load.
+     * @param spriteIcons La lista de ImageIcons a la que se agregará el sprite.
+     * @param spriteUrl La URL de la imagen del sprite que se cargará.
      */
     private void addSpriteIfValid(List<ImageIcon> spriteIcons, String spriteUrl) {
         if (spriteUrl != null && !spriteUrl.isEmpty()) {
@@ -180,11 +180,11 @@ public class SpriteView {
     }
 
     /**
-     * Updates the sprite panel with the given sprite icons.
-     * It arranges the icons in a grid layout with labels for each sprite type.
+     * Actualiza el panel de sprites con los íconos de sprites indicados.
+     * Organiza los íconos en un diseño de cuadrícula con etiquetas para cada tipo de sprite.
      *
-     * @param spriteIcons The list of ImageIcons to display.
-     * @param spritePanel The panel to update with the sprite icons.
+     * @param spriteIcons La lista de ImageIcons para mostrar.
+     * @param spritePanel El panel para actualizar con los íconos de sprites.
      */
     private void updateSpritePanel(List<ImageIcon> spriteIcons, JPanel spritePanel) {
         SwingUtilities.invokeLater(() -> {
@@ -216,9 +216,9 @@ public class SpriteView {
     }
 
     /**
-     * Displays an error message in a pop-up dialog.
+     * Muestra un mensaje de error en un cuadro de diálogo emergente.
      *
-     * @param message The error message to display.
+     * @param message El mensaje de error que se mostrará.
      */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->

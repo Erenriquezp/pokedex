@@ -14,8 +14,8 @@ import java.net.URI;
 import java.util.List;
 
 /**
- * The TypeView class is responsible for displaying Pokémon by type in the user interface.
- * It allows the user to search for Pokémon by type and view the results in a scrollable panel.
+ * La clase TypeView es la encargada de mostrar los Pokémon por tipo en la interfaz de usuario.
+ * Permite al usuario buscar Pokémon por tipo y ver los resultados en un panel desplazable.
  */
 @Component
 public class TypeView {
@@ -26,11 +26,11 @@ public class TypeView {
     private final UIConfig uiConfig;
 
     /**
-     * Constructor for the TypeView class.
-     * Initializes the view and sets up the components and event listeners.
+     * Constructor para la clase TypeView.
+     * Inicializa la vista y configura los componentes y los detectores de eventos.
      *
-     * @param controller The controller responsible for fetching Pokémon data by type.
-     * @param uiConfig   The UI configuration for styling components.
+     * @param controller El controlador responsable de obtener los datos de Pokémon por tipo.
+     * @param uiConfig La configuración de la interfaz de usuario para los componentes de estilo.
      */
     public TypeView(TypeController controller, UIConfig uiConfig) {
         this.controller = controller;
@@ -40,8 +40,8 @@ public class TypeView {
     }
 
     /**
-     * Initializes the UI components of the TypeView, including the title, search bar, and result panel.
-     * It also sets the action listener for the search button.
+     * Inicializa los componentes de la interfaz de usuario de TypeView, incluidos el título, la barra de búsqueda y el panel de resultados.
+     * También establece el detector de acciones para el botón de búsqueda.
      */
     private void initialize() {
         // Create title label
@@ -80,9 +80,9 @@ public class TypeView {
     }
 
     /**
-     * Creates and styles the search input field.
+     * Crea y da estilo al campo de entrada de búsqueda.
      *
-     * @return A styled JTextField for searching Pokémon by type.
+     * @return Un JTextField con estilo para buscar Pokémon por tipo.
      */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(25);
@@ -93,9 +93,9 @@ public class TypeView {
     }
 
     /**
-     * Creates the scroll pane for displaying Pokémon by type, which includes a layout for cards.
+     * Crea el panel de desplazamiento para mostrar Pokémon por tipo, que incluye un diseño para las cartas.
      *
-     * @return A JScrollPane containing a panel to display Pokémon.
+     * @return Un JScrollPane que contiene un panel para mostrar Pokémon.
      */
     private JScrollPane createPokemonScrollPane() {
         JPanel pokemonPanel = new JPanel();
@@ -110,10 +110,10 @@ public class TypeView {
     }
 
     /**
-     * Fetches and displays the list of Pokémon for a given type.
-     * This method runs asynchronously to avoid blocking the UI.
+     * Obtiene y muestra la lista de Pokémon de un tipo determinado.
+     * Este método se ejecuta de forma asincrónica para evitar bloquear la interfaz de usuario.
      *
-     * @param typeName The type of Pokémon to search for (e.g., "Fire", "Water").
+     * @param typeName El tipo de Pokémon que se buscará (p. ej., "Fuego", "Agua").
      */
     private void fetchAndDisplayPokemonByType(String typeName) {
         SwingWorker<List<Pokemon>, Void> worker = new SwingWorker<>() {
@@ -145,9 +145,9 @@ public class TypeView {
     }
 
     /**
-     * Populates the Pokémon display panel with Pokémon cards.
+     * Rellena el panel de visualización de Pokémon con cartas de Pokémon.
      *
-     * @param pokemons A list of Pokémon to be displayed in the UI.
+     * @param pokemons Una lista de Pokémon que se mostrarán en la interfaz de usuario.
      */
     private void populatePokemonPanel(List<Pokemon> pokemons) {
         JPanel pokemonPanel = (JPanel) ((JScrollPane) panel.getComponent(1)).getViewport().getView();
@@ -160,10 +160,10 @@ public class TypeView {
     }
 
     /**
-     * Creates a panel card for a Pokémon displaying its name and sprite.
+     * Crea una tarjeta de panel para un Pokémon que muestra su nombre y sprite.
      *
-     * @param pokemon The Pokémon to create the card for.
-     * @return A JPanel representing the Pokémon card with its name and sprite.
+     * @param pokemon El Pokémon para el que se creará la tarjeta.
+     * @return Un JPanel que representa la tarjeta de Pokémon con su nombre y sprite.
      */
     private JPanel createPokemonCard(Pokemon pokemon) {
         JPanel card = ComponentFactory.createPanel(new BorderLayout(10, 10), uiConfig.secondaryColor());
@@ -183,10 +183,10 @@ public class TypeView {
     }
 
     /**
-     * Loads an image asynchronously to display the Pokémon sprite.
+     * Carga una imagen de forma asincrónica para mostrar el sprite del Pokémon.
      *
-     * @param spriteUrl The URL of the Pokémon sprite image.
-     * @param spriteLabel The JLabel where the sprite will be displayed.
+     * @param spriteUrl La URL de la imagen del sprite del Pokémon.
+     * @param spriteLabel La JLabel donde se mostrará el sprite.
      */
     private void loadImageAsync(String spriteUrl, JLabel spriteLabel) {
         SwingWorker<ImageIcon, Void> worker = new SwingWorker<>() {
@@ -219,9 +219,9 @@ public class TypeView {
     }
 
     /**
-     * Displays an error message in a dialog box.
+     * Muestra un mensaje de error en un cuadro de diálogo.
      *
-     * @param message The error message to display.
+     * @param message El mensaje de error que se mostrará.
      */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->

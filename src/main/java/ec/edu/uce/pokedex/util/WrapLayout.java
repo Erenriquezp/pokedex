@@ -4,7 +4,7 @@ import java.awt.*;
 import javax.swing.*;
 
 /**
- * A FlowLayout subclass that fully supports wrapping of components.
+ * Una subclase de FlowLayout que admite completamente el ajuste de componentes.
  */
 public class WrapLayout extends FlowLayout {
 

@@ -1,24 +1,24 @@
 package ec.edu.uce.pokedex.exception;
 
 /**
- * Custom exception for errors occurring during the fetching of evolution chains.
+ * Excepción personalizada para errores que ocurren durante la obtención de cadenas de evolución.
  */
 public class EvolutionFetchException extends RuntimeException {
 
     /**
-     * Constructs a new EvolutionFetchException with the specified detail message.
+     * Construye una nueva EvolutionFetchException con el mensaje de detalle especificado.
      *
-     * @param message the detail message
+     * @param message el mensaje de detalle
      */
     public EvolutionFetchException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new EvolutionFetchException with the specified detail message and cause.
+     * Construye una nueva EvolutionFetchException con el mensaje detallado y la causa especificados.
      *
-     * @param message the detail message
-     * @param cause   the cause of the exception
+     * @param message el mensaje detallado
+     * @param cause la causa de la excepción
      */
     public EvolutionFetchException(String message, Throwable cause) {
         super(message, cause);

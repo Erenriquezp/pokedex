@@ -13,8 +13,8 @@ import java.awt.*;
 import java.util.List;
 
 /**
- * The StatView class is responsible for managing the user interface related to displaying Pokémon statistics.
- * It allows users to search for a Pokémon by name and view its stats in a table.
+ * La clase StatView es responsable de administrar la interfaz de usuario relacionada con la visualización de las estadísticas de los Pokémon.
+ * Permite a los usuarios buscar un Pokémon por nombre y ver sus estadísticas en una tabla.
  */
 @Component
 public class StatView {
@@ -26,11 +26,11 @@ public class StatView {
     private final UIConfig uiConfig;
 
     /**
-     * Constructor for the StatView class.
-     * Initializes the view components and sets up the event listeners.
+     * Constructor para la clase StatView.
+     * Inicializa los componentes de la vista y configura los detectores de eventos.
      *
-     * @param controller The controller responsible for fetching stats data for Pokémon.
-     * @param uiConfig   The configuration for UI styling.
+     * @param controller El controlador responsable de obtener los datos de estadísticas de Pokémon.
+     * @param uiConfig La configuración para el estilo de la interfaz de usuario.
      */
     public StatView(StatController controller, UIConfig uiConfig) {
         this.controller = controller;
@@ -41,8 +41,8 @@ public class StatView {
     }
 
     /**
-     * Initializes the components of the StatView.
-     * Sets up the title, search bar, and stats table display area.
+     * Inicializa los componentes de StatView.
+     * Configura el título, la barra de búsqueda y el área de visualización de la tabla de estadísticas.
      */
     private void initialize() {
         // Create title label
@@ -70,9 +70,9 @@ public class StatView {
     }
 
     /**
-     * Handles the search action by fetching and displaying the stats for the specified Pokémon.
+     * Maneja la acción de búsqueda obteniendo y mostrando las estadísticas del Pokémon especificado.
      *
-     * @param searchField The search field from which the Pokémon name is retrieved.
+     * @param searchField El campo de búsqueda del cual se recupera el nombre del Pokémon.
      */
     private void handleSearch(JTextField searchField) {
         String pokemonName = searchField.getText().trim();
@@ -84,10 +84,10 @@ public class StatView {
     }
 
     /**
-     * Fetches the stats for the given Pokémon and updates the display.
-     * This is done asynchronously to prevent blocking the UI.
+     * Obtiene las estadísticas del Pokémon indicado y actualiza la pantalla.
+     * Esto se hace de forma asincrónica para evitar bloquear la interfaz de usuario.
      *
-     * @param pokemonName The name of the Pokémon to fetch stats for.
+     * @param pokemonName El nombre del Pokémon del que se obtendrán las estadísticas.
      */
     private void fetchAndDisplayStats(String pokemonName) {
         SwingWorker<List<Stat>, Void> worker = new SwingWorker<>() {
@@ -120,9 +120,9 @@ public class StatView {
     }
 
     /**
-     * Populates the stats table with the retrieved Pokémon stats.
+     * Rellena la tabla de estadísticas con las estadísticas recuperadas del Pokémon.
      *
-     * @param stats List of Stat objects representing the stats of a Pokémon.
+     * @param stats Lista de objetos Stat que representan las estadísticas de un Pokémon.
      */
     private void populateTable(List<Stat> stats) {
         SwingUtilities.invokeLater(() -> {
@@ -136,9 +136,9 @@ public class StatView {
     }
 
     /**
-     * Displays an error message in a dialog box.
+     * Muestra un mensaje de error en un cuadro de diálogo.
      *
-     * @param message The error message to display.
+     * @param message El mensaje de error que se mostrará.
      */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->
@@ -147,9 +147,9 @@ public class StatView {
     }
 
     /**
-     * Displays an informational message in a dialog box.
+     * Muestra un mensaje informativo en un cuadro de diálogo.
      *
-     * @param message The information message to display.
+     * @param message El mensaje informativo que se mostrará.
      */
     private void showInfoMessage(String message) {
         SwingUtilities.invokeLater(() ->

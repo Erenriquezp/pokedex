@@ -6,13 +6,13 @@ import java.awt.*;
 public class ComponentFactory {
 
     /**
-     * Creates a button with the specified properties.
+     * Crea un botón con las propiedades especificadas.
      *
-     * @param text        Text to display on the button.
-     * @param fontSize    Font size of the button text.
-     * @param background  Background color of the button.
-     * @param foreground  Foreground (text) color of the button.
-     * @return Configured JButton instance.
+     * @param text Texto que se mostrará en el botón.
+     * @param fontSize Tamaño de fuente del texto del botón.
+     * @param background Color de fondo del botón.
+     * @param foreground Color de primer plano (texto) del botón.
+     * @return Configured de JButton configurada.
      */
     public static JButton createButton(String text, int fontSize, Color background, Color foreground) {
         JButton button = new JButton(text);
@@ -25,12 +25,12 @@ public class ComponentFactory {
     }
 
     /**
-     * Creates a label with the specified properties.
+     * Crea una etiqueta con las propiedades especificadas.
      *
-     * @param text      Text to display on the label.
-     * @param fontSize  Font size of the label text.
-     * @param alignment Alignment of the label text (e.g., SwingConstants. CENTER).
-     * @return Configured JLabel instance.
+     * @param text Texto que se mostrará en la etiqueta.
+     * @param fontSize Tamaño de fuente del texto de la etiqueta.
+     * @param alignment Alineación del texto de la etiqueta (p. ej., SwingConstants. CENTER).
+     * @return Configured de JLabel configurada.
      */
     public static JLabel createLabel(String text, int fontSize, int alignment) {
         JLabel label = new JLabel(text, alignment);
@@ -39,11 +39,11 @@ public class ComponentFactory {
     }
 
     /**
-     * Creates a search panel with a text field and a button.
+     * Crea un panel de búsqueda con un campo de texto y un botón.
      *
-     * @param searchField Text field for input.
-     * @param searchButton Button to trigger the search action.
-     * @return Configured JPanel instance.
+     * @param searchField Campo de texto para entrada.
+     * @param searchButton Botón para activar la acción de búsqueda.
+     * @return Configured de JPanel configurada.
      */
     public static JPanel createSearchPanel(JTextField searchField, JButton searchButton) {
         JPanel searchPanel = new JPanel(new BorderLayout());
@@ -53,11 +53,11 @@ public class ComponentFactory {
     }
 
     /**
-     * Creates a text field with the specified properties.
+     * Crea un campo de texto con las propiedades especificadas.
      *
-     * @param columns  Number of columns for the text field.
-     * @param alignment Alignment of the text in the field (e.g., JTextField. CENTER).
-     * @return Configured JTextField instance.
+     * @param columns Número de columnas para el campo de texto.
+     * @param alignment Alineación del texto en el campo (p. ej., JTextField. CENTER).
+     * @return Configured de JTextField configurada.
      */
     public static JTextField createTextField(int columns, int alignment) {
         JTextField textField = new JTextField(columns);
@@ -67,10 +67,10 @@ public class ComponentFactory {
     }
 
     /**
-     * Creates a scroll pane for a given component.
+     * Crea un panel de desplazamiento para un componente determinado.
      *
-     * @param component The component to add to the scroll pane.
-     * @return Configured JScrollPane instance.
+     * @param component El componente que se agregará al panel de desplazamiento.
+     * @return Configured JScrollPane configurada.
      */
     public static JScrollPane createScrollPane(Component component) {
         JScrollPane scrollPane = new JScrollPane(component);
@@ -80,11 +80,11 @@ public class ComponentFactory {
     }
 
     /**
-     * Creates a styled JPanel.
+     * Crea un JPanel con estilo.
      *
-     * @param layout Layout manager for the panel.
-     * @param backgroundColor Background color of the panel.
-     * @return Configured JPanel instance.
+     * @param layout Administrador de diseño para el panel.
+     * @param backgroundColor Color de fondo del panel.
+     * @return Configured de JPanel configurada.
      */
     public static JPanel createPanel(LayoutManager layout, Color backgroundColor) {
         JPanel panel = new JPanel(layout);

@@ -17,10 +17,10 @@ public class SpriteService {
     }
 
     /**
-     * Retrieves sprites for a Pokémon from the database or loads them from the API if not found.
+     * Recupera los sprites de un Pokémon de la base de datos o los carga desde la API si no se encuentran.
      *
-     * @param pokemonName Name of the Pokémon.
-     * @return Sprites object for the Pokémon.
+     * @param pokemonName Nombre del Pokémon.
+     * @return Objeto Sprites del Pokémon.
      */
     public Sprites getSpritesForPokemon(String pokemonName) {
         Sprites sprites = spritesRepository.findByPokemonName(pokemonName);

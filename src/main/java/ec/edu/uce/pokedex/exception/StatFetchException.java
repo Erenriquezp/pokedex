@@ -1,24 +1,24 @@
 package ec.edu.uce.pokedex.exception;
 
 /**
- * Custom exception for errors occurring while fetching Pokémon stats.
+ * Excepción personalizada para errores que ocurren al obtener estadísticas de Pokémon.
  */
 public class StatFetchException extends RuntimeException {
 
     /**
-     * Constructs a new StatFetchException with the specified detail message.
+     * Construye una nueva StatFetchException con el mensaje de detalle especificado.
      *
-     * @param message the detail message.
+     * @param message el mensaje de detalle.
      */
     public StatFetchException(String message) {
         super(message);
     }
 
     /**
-     * Constructs a new StatFetchException with the specified detail message and cause.
+     * Construye una nueva StatFetchException con el mensaje detallado y la causa especificados.
      *
-     * @param message the detail message.
-     * @param cause   the cause of the exception.
+     * @param message el mensaje detallado.
+     * @param cause la causa de la excepción.
      */
     public StatFetchException(String message, Throwable cause) {
         super(message, cause);

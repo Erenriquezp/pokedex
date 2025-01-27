@@ -16,10 +16,10 @@ public class MoveService {
     }
 
     /**
-     * Retrieves all moves for a Pokémon from the database.
+     * Recupera todos los movimientos de un Pokémon de la base de datos.
      *
-     * @param pokemonName Name of the Pokémon.
-     * @return List of Move objects.
+     * @param pokemonName Nombre del Pokémon.
+     * @return Lista de objetos de movimiento.
      */
     public List<Move> getMovesForPokemon(String pokemonName) {
         return moveRepository.findByPokemonName(pokemonName);

@@ -14,8 +14,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * The EvolutionView class is responsible for managing the user interface related to displaying a Pokémon's evolution chain.
- * It allows users to search for a Pokémon species by name and view its evolutionary stages.
+ * La clase EvolutionView es responsable de gestionar la interfaz de usuario relacionada con la visualización de la cadena de evolución de un Pokémon.
+ * Permite a los usuarios buscar una especie de Pokémon por nombre y ver sus etapas evolutivas.
  */
 @Component
 public class EvolutionView {
@@ -26,11 +26,11 @@ public class EvolutionView {
     private final UIConfig uiConfig;
 
     /**
-     * Constructor for the EvolutionView class.
-     * Initializes the view components and sets up the event listeners.
+     * Constructor de la clase EvolutionView.
+     * Inicializa los componentes de la vista y configura los detectores de eventos.
      *
-     * @param controller The controller responsible for fetching evolution chain data.
-     * @param uiConfig   The configuration for UI styling.
+     * @param controller El controlador responsable de obtener los datos de la cadena de evolución.
+     * @param uiConfig La configuración para el estilo de la interfaz de usuario.
      */
     public EvolutionView(EvolutionController controller, UIConfig uiConfig) {
         this.controller = controller;
@@ -40,8 +40,8 @@ public class EvolutionView {
     }
 
     /**
-     * Initializes the components of the EvolutionView.
-     * Sets up the title, search bar, and evolution display area.
+     * Inicializa los componentes de EvolutionView.
+     * Configura el título, la barra de búsqueda y el área de visualización de Evolution.
      */
     private void initialize() {
         // Create title label
@@ -84,9 +84,9 @@ public class EvolutionView {
     }
 
     /**
-     * Creates the search field with styling.
+     * Crea el campo de búsqueda con estilo.
      *
-     * @return A JTextField that allows users to input a Pokémon species name.
+     * @return Un JTextField que permite a los usuarios ingresar el nombre de una especie de Pokémon.
      */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(25);
@@ -97,11 +97,11 @@ public class EvolutionView {
     }
 
     /**
-     * Fetches the evolution chain for the given Pokémon species and displays it in the provided panel.
-     * This is done asynchronously to avoid blocking the UI.
+     * Obtiene la cadena de evolución de la especie de Pokémon indicada y la muestra en el panel proporcionado.
+     * Esto se hace de forma asincrónica para evitar bloquear la interfaz de usuario.
      *
-     * @param speciesName   The name of the Pokémon species to fetch the evolution chain for.
-     * @param evolutionPanel The panel where the evolution chain will be displayed.
+     * @paramspeciesName El nombre de la especie de Pokémon para la que se obtendrá la cadena de evolución.
+     * @param evolutionPanel El panel donde se mostrará la cadena de evolución.
      */
     private void fetchAndDisplayEvolutionChain(String speciesName, JPanel evolutionPanel) {
         SwingWorker<List<Map<String, Object>>, Void> worker = new SwingWorker<>() {
@@ -134,10 +134,10 @@ public class EvolutionView {
     }
 
     /**
-     * Populates the evolution panel with the evolution stages.
+     * Rellena el panel de evolución con las etapas de evolución.
      *
-     * @param chain          The list of evolution stages to display.
-     * @param evolutionPanel The panel to populate with evolution details.
+     * @param chain La lista de etapas de evolución que se mostrarán.
+     * @param evolutionPanel El panel que se rellenará con los detalles de la evolución.
      */
     private void populateEvolutionPanel(List<Map<String, Object>> chain, JPanel evolutionPanel) {
         SwingUtilities.invokeLater(() -> {
@@ -155,10 +155,10 @@ public class EvolutionView {
     }
 
     /**
-     * Creates a panel for displaying a specific evolution stage.
+     * Crea un panel para mostrar una etapa de evolución específica.
      *
-     * @param stage A map containing the data for the evolution stage.
-     * @return A JPanel displaying the evolution stage.
+     * @param stage Un mapa que contiene los datos de la etapa de evolución.
+     * @return Un JPanel que muestra la etapa de evolución.
      */
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
@@ -181,10 +181,10 @@ public class EvolutionView {
     }
 
     /**
-     * Creates a JLabel for the Pokémon sprite, either displaying the image or an error message if the image cannot be loaded.
+     * Crea un JLabel para el sprite de Pokémon, que muestra la imagen o un mensaje de error si no se puede cargar la imagen.
      *
-     * @param imageUrl The URL of the Pokémon sprite image.
-     * @return A JLabel displaying the sprite or an error message.
+     * @param imageUrl La URL de la imagen del sprite de Pokémon.
+     * @return Un JLabel que muestra el sprite o un mensaje de error.
      */
     private JLabel createSpriteLabel(String imageUrl) {
         JLabel spriteLabel = new JLabel();
@@ -224,10 +224,10 @@ public class EvolutionView {
     }
 
     /**
-     * Extracts the Pokémon ID from the species URL.
+     * Extrae el ID del Pokémon de la URL de la especie.
      *
-     * @param url The URL of the species data.
-     * @return The extracted Pokémon ID.
+     * @param url La URL de los datos de la especie.
+     * @return El ID del Pokémon extraído.
      */
     private String extractIdFromUrl(String url) {
         String[] parts = url.split("/");
@@ -235,9 +235,9 @@ public class EvolutionView {
     }
 
     /**
-     * Displays an error message to the user in a dialog.
+     * Muestra un mensaje de error al usuario en un cuadro de diálogo.
      *
-     * @param message The error message to display.
+     * @param message El mensaje de error que se mostrará.
      */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->

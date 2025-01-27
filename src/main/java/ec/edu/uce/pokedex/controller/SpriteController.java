@@ -14,10 +14,10 @@ public class SpriteController {
     }
 
     /**
-     * Retrieves sprites for a Pokémon by its name.
+     * Obtiene sprites de un Pokémon por su nombre.
      *
-     * @param pokemonName Name of the Pokémon.
-     * @return Sprites object.
+     * @param pokemonName Nombre del Pokémon.
+     * @return Objeto Sprites.
      */
     public Sprites getSpritesForPokemon(String pokemonName) {
         return spriteService.getSpritesForPokemon(pokemonName);

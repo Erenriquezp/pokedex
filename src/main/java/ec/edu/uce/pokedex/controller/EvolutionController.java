@@ -17,10 +17,10 @@ public class EvolutionController {
     }
 
     /**
-     * Retrieves the evolution chain for a given Pokémon species.
+     * Recupera la cadena de evolución de una especie de Pokémon determinada.
      *
-     * @param speciesName Name of the Pokémon species.
-     * @return Mono containing the evolution chain as a list of stages.
+     * @paramspeciesName Nombre de la especie de Pokémon.
+     * @return Mono que contiene la cadena de evolución como una lista de etapas.
      */
     public Mono<List<Map<String, Object>>> getEvolutionChain(String speciesName) {
         return evolutionService.getEvolutionChain(speciesName);
