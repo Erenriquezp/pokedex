@@ -30,14 +30,18 @@ public class SpriteView {
     }
 
     private void initialize() {
+        // Crear título con estilo y márgenes
         JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon Sprites", 35, SwingConstants.CENTER);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
+        // Crear barra de búsqueda
         JTextField searchField = createSearchField();
         JButton searchButton = createSearchButton();
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
+        searchPanel.setBackground(uiConfig.secondaryColor());
 
         JPanel spritePanel = new JPanel();
         JScrollPane scrollPane = ComponentFactory.createScrollPane(spritePanel);
@@ -45,10 +49,12 @@ public class SpriteView {
 
         spritePanel.setBackground(uiConfig.secondaryColor());
 
+        // Agregar componentes al panel principal
         panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(searchPanel, BorderLayout.NORTH);
-        panel.add(scrollPane, BorderLayout.CENTER);
+        panel.add(searchPanel, BorderLayout.CENTER);
+        panel.add(scrollPane, BorderLayout.SOUTH);
 
+        // Acción para el botón de búsqueda
         searchButton.addActionListener(e -> {
             String pokemonName = searchField.getText().trim();
             if (pokemonName.isEmpty()) {
@@ -120,7 +126,7 @@ public class SpriteView {
             try {
                 URI uri = new URI(spriteUrl);
                 ImageIcon spriteIcon = new ImageIcon(uri.toURL());
-                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
+                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(160, 160, Image.SCALE_SMOOTH)));
             } catch (Exception ignored) {
                 // Log the error if necessary, but avoid stopping the flow.
             }

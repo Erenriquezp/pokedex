@@ -31,7 +31,7 @@ public class StatView {
     }
 
     private void initialize() {
-        JLabel titleLabel = ComponentFactory.createLabel("Pokémon Stats Viewer", 24, SwingConstants.CENTER);
+        JLabel titleLabel = ComponentFactory.createLabel("Pokémon Stats Viewer", 28, SwingConstants.CENTER);
 
         JTextField searchField = ComponentFactory.createTextField(20, SwingConstants.CENTER);
         JButton searchButton = ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
@@ -39,6 +39,7 @@ public class StatView {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
+        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
 
         JScrollPane scrollPane = new JScrollPane(statTable);
 
