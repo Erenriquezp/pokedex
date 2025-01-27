@@ -10,6 +10,10 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.util.List;
 
+/**
+ * Vista principal de la aplicación Pokédex que maneja la configuración de la interfaz gráfica,
+ * la carga de datos y la navegación entre diferentes vistas.
+ */
 @Component
 public class MainView {
 
@@ -17,13 +21,27 @@ public class MainView {
     private final PokeService pokeService;
     private JFrame frame;
 
+    /**
+     * Constructor de la vista principal.
+     *
+     * @param uiConfig Configuración de la interfaz de usuario.
+     * @param pokeService Servicio para obtener datos sobre los Pokémon.
+     */
     public MainView(UIConfig uiConfig, PokeService pokeService) {
         this.uiConfig = uiConfig;
         this.pokeService = pokeService;
     }
 
     /**
-     * Inicializa la vista principal.
+     * Inicializa la vista principal y configura los diferentes componentes gráficos,
+     * como la ventana principal, el panel de botones, el menú y las vistas de los Pokémon.
+     *
+     * @param searchView Vista de búsqueda de Pokémon.
+     * @param spriteView Vista para mostrar los sprites de los Pokémon.
+     * @param homeView Vista principal de la Pokédex.
+     * @param statView Vista para mostrar las estadísticas de los Pokémon.
+     * @param typeView Vista para mostrar los tipos de los Pokémon.
+     * @param evolutionView Vista para mostrar la cadena evolutiva de los Pokémon.
      */
     public void initialize(
             SearchView searchView,
@@ -35,7 +53,6 @@ public class MainView {
 
         frame = new JFrame("Pokédex");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(false);
 
@@ -63,6 +80,18 @@ public class MainView {
         frame.setVisible(true);
     }
 
+    /**
+     * Crea un panel principal con múltiples vistas utilizando un CardLayout.
+     * Cada vista se agrega con una clave de nombre correspondiente.
+     *
+     * @param homeView Vista principal de la Pokédex.
+     * @param searchView Vista de búsqueda de Pokémon.
+     * @param spriteView Vista para mostrar los sprites de los Pokémon.
+     * @param statView Vista para mostrar las estadísticas de los Pokémon.
+     * @param typeView Vista para mostrar los tipos de los Pokémon.
+     * @param evolutionView Vista para mostrar la cadena evolutiva de los Pokémon.
+     * @return El panel principal que contiene todas las vistas.
+     */
     private JPanel createMainPanel(
             HomeView homeView,
             SearchView searchView,
@@ -81,6 +110,13 @@ public class MainView {
         return mainPanel;
     }
 
+    /**
+     * Crea un panel con botones de navegación que permiten cambiar entre las vistas.
+     *
+     * @param mainPanel El panel principal con el CardLayout.
+     * @param homeView Vista de inicio de la Pokédex.
+     * @return El panel con los botones de navegación.
+     */
     private JPanel createButtonPanel(JPanel mainPanel, HomeView homeView) {
         JPanel buttonPanel = new JPanel(new BorderLayout());
         buttonPanel.setBackground(uiConfig.secondaryColor());
@@ -104,6 +140,14 @@ public class MainView {
         return buttonPanel;
     }
 
+    /**
+     * Crea un botón de navegación para cambiar entre las vistas del CardLayout.
+     *
+     * @param text El texto que se mostrará en el botón.
+     * @param mainPanel El panel principal con el CardLayout.
+     * @param cardName El nombre de la vista a mostrar al hacer clic en el botón.
+     * @return El botón de navegación creado.
+     */
     private JButton createNavigationButton(String text, JPanel mainPanel, String cardName) {
         JButton button = ComponentFactory.createButton(text, 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
         button.addActionListener(e -> {
@@ -113,6 +157,12 @@ public class MainView {
         return button;
     }
 
+    /**
+     * Crea la barra de menú con opciones de "File" y "Help".
+     * Incluye la opción de salir y la opción de mostrar información sobre la aplicación.
+     *
+     * @return La barra de menú creada.
+     */
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -132,6 +182,13 @@ public class MainView {
         return menuBar;
     }
 
+    /**
+     * Crea la acción para cargar los datos de los Pokémon desde la API y mostrar el progreso.
+     *
+     * @param mainPanel El panel principal con el CardLayout.
+     * @param homeView Vista de inicio de la Pokédex.
+     * @return Un ActionListener que maneja la carga de datos desde la API.
+     */
     private ActionListener createLoadApiAction(JPanel mainPanel, HomeView homeView) {
         return e -> {
             JDialog progressDialog = createProgressDialog();
@@ -193,6 +250,11 @@ public class MainView {
         };
     }
 
+    /**
+     * Crea un cuadro de diálogo para mostrar el progreso de la carga de datos.
+     *
+     * @return El cuadro de diálogo con la barra de progreso.
+     */
     private JDialog createProgressDialog() {
         JDialog dialog = new JDialog(frame, "Loading Pokémon", true);
         JProgressBar progressBar = new JProgressBar(0, 1000);
@@ -203,6 +265,11 @@ public class MainView {
         return dialog;
     }
 
+    /**
+     * Muestra un mensaje inicial cuando no hay datos de Pokémon disponibles.
+     *
+     * @param mainPanel El panel principal donde se mostrará el mensaje.
+     */
     private void showInitialMessage(JPanel mainPanel) {
         JPanel messagePanel = new JPanel(new BorderLayout());
         JLabel messageLabel = ComponentFactory.createLabel("No data found. Please use the 'Load Data from API' button.", 20, SwingConstants.CENTER);
@@ -211,6 +278,11 @@ public class MainView {
         ((CardLayout) mainPanel.getLayout()).show(mainPanel, "NoDataView");
     }
 
+    /**
+     * Muestra un mensaje en un cuadro de diálogo.
+     *
+     * @param message El mensaje a mostrar.
+     */
     public void showMessage(String message) {
         JOptionPane.showMessageDialog(frame, message, "Information", JOptionPane.INFORMATION_MESSAGE);
     }

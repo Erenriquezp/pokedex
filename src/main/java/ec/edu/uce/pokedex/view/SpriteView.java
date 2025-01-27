@@ -14,6 +14,10 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The SpriteView class is responsible for displaying the user interface for searching and displaying Pokémon sprites.
+ * It allows users to search for a Pokémon by name and see various sprite images (front, back, shiny, etc.).
+ */
 @Component
 public class SpriteView {
 
@@ -22,6 +26,13 @@ public class SpriteView {
     private final SpriteController controller;
     private final UIConfig uiConfig;
 
+    /**
+     * Constructor for SpriteView.
+     * Initializes the UI components and sets up the event listeners.
+     *
+     * @param controller The controller responsible for fetching sprite data.
+     * @param uiConfig   The configuration for UI styling.
+     */
     public SpriteView(SpriteController controller, UIConfig uiConfig) {
         this.controller = controller;
         this.uiConfig = uiConfig;
@@ -29,12 +40,16 @@ public class SpriteView {
         initialize();
     }
 
+    /**
+     * Initializes the UI components including the title, search bar, and sprite panel.
+     * Sets up the layout and event listeners for the search button.
+     */
     private void initialize() {
-        // Crear título con estilo y márgenes
+        // Create title with style and margins
         JLabel titleLabel = ComponentFactory.createLabel("Search Pokémon Sprites", 35, SwingConstants.CENTER);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // Crear barra de búsqueda
+        // Create search bar
         JTextField searchField = createSearchField();
         JButton searchButton = createSearchButton();
 
@@ -43,7 +58,7 @@ public class SpriteView {
         searchPanel.add(searchButton);
         searchPanel.setBackground(uiConfig.secondaryColor());
 
-        // Contenedor para título y barra de búsqueda
+        // Container for title and search bar
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         headerPanel.add(searchPanel, BorderLayout.SOUTH);
@@ -57,6 +72,7 @@ public class SpriteView {
         panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Add action listener for search button
         searchButton.addActionListener(e -> {
             String pokemonName = searchField.getText().trim();
             if (pokemonName.isEmpty()) {
@@ -67,6 +83,11 @@ public class SpriteView {
         });
     }
 
+    /**
+     * Creates and returns a JTextField for the search bar.
+     *
+     * @return The JTextField component for entering Pokémon names.
+     */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(20);
         searchField.setFont(uiConfig.labelFont());
@@ -75,10 +96,21 @@ public class SpriteView {
         return searchField;
     }
 
+    /**
+     * Creates and returns a JButton for the search functionality.
+     *
+     * @return The JButton component for initiating a Pokémon sprite search.
+     */
     private JButton createSearchButton() {
         return ComponentFactory.createButton("Search", 16, uiConfig.primaryColor(), uiConfig.secondaryColor());
     }
 
+    /**
+     * Fetches the Pokémon sprites asynchronously based on the provided name and displays them on the sprite panel.
+     *
+     * @param pokemonName The name of the Pokémon to search for.
+     * @param spritePanel The panel where the sprites will be displayed.
+     */
     private void fetchAndDisplaySprites(String pokemonName, JPanel spritePanel) {
         SwingWorker<List<ImageIcon>, Void> worker = new SwingWorker<>() {
             @Override
@@ -106,6 +138,12 @@ public class SpriteView {
         worker.execute();
     }
 
+    /**
+     * Loads and returns a list of ImageIcons based on the provided sprite URLs.
+     *
+     * @param sprites The Sprites object containing URLs for various sprite types.
+     * @return A list of ImageIcons for the valid sprites.
+     */
     private List<ImageIcon> loadSprites(Sprites sprites) {
         List<ImageIcon> spriteIcons = new ArrayList<>();
         try {
@@ -123,6 +161,12 @@ public class SpriteView {
         return spriteIcons;
     }
 
+    /**
+     * Adds a sprite to the list of ImageIcons if the sprite URL is valid.
+     *
+     * @param spriteIcons The list of ImageIcons to add the sprite to.
+     * @param spriteUrl   The URL of the sprite image to load.
+     */
     private void addSpriteIfValid(List<ImageIcon> spriteIcons, String spriteUrl) {
         if (spriteUrl != null && !spriteUrl.isEmpty()) {
             try {
@@ -135,6 +179,13 @@ public class SpriteView {
         }
     }
 
+    /**
+     * Updates the sprite panel with the given sprite icons.
+     * It arranges the icons in a grid layout with labels for each sprite type.
+     *
+     * @param spriteIcons The list of ImageIcons to display.
+     * @param spritePanel The panel to update with the sprite icons.
+     */
     private void updateSpritePanel(List<ImageIcon> spriteIcons, JPanel spritePanel) {
         SwingUtilities.invokeLater(() -> {
             spritePanel.removeAll();
@@ -164,6 +215,11 @@ public class SpriteView {
         });
     }
 
+    /**
+     * Displays an error message in a pop-up dialog.
+     *
+     * @param message The error message to display.
+     */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)

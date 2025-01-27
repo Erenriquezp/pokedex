@@ -19,36 +19,52 @@ public class ExternalApiService {
 
     /**
      * Obtiene los datos de un Pokémon desde la API externa.
+     * <p>
+     * Este método realiza una petición a la API externa para obtener los datos
+     * completos de un Pokémon específico utilizando su nombre. Luego, mapea
+     * la respuesta a un objeto `Pokemon` con la información correspondiente.
      *
-     * @param name Nombre del Pokémon.
-     * @return Objeto Pokemon mapeado desde la API.
+     * @param name Nombre del Pokémon a consultar.
+     * @return Un objeto `Mono<Pokemon>` que contiene el Pokémon mapeado.
      */
     public Mono<Pokemon> getPokemonFromApi(String name) {
         return webClient.get()
-                .uri("/pokemon/{name}", name.toLowerCase())
+                .uri("/pokemon/{name}", name.toLowerCase()) // Se utiliza el nombre del Pokémon en minúsculas
                 .retrieve()
-                .bodyToMono(Map.class)
-                .map(this::mapToPokemon);
+                .bodyToMono(Map.class) // Se convierte la respuesta en un mapa
+                .map(this::mapToPokemon); // Mapea el mapa a un objeto Pokémon
     }
 
     /**
      * Obtiene todos los Pokémon de la API externa.
+     * <p>
+     * Este método realiza una petición a la API externa para obtener una lista
+     * de Pokémon. La respuesta se procesa y mapea a objetos `Pokemon` y se devuelve
+     * como un flujo (`Flux`).
      *
      * @param limit  Límite de Pokémon a obtener.
      * @param offset Punto de inicio para obtener los Pokémon.
-     * @return Lista de objetos Pokémon mapeados.
+     * @return Un objeto `Flux<Pokemon>` que contiene los Pokémon mapeados.
      */
     public Flux<Pokemon> getAllPokemonFromApi(int limit, int offset) {
         return webClient.get()
-                .uri("/pokemon?limit={limit}&offset={offset}", limit, offset)
+                .uri("/pokemon?limit={limit}&offset={offset}", limit, offset) // Obtiene una lista de Pokémon
                 .retrieve()
-                .bodyToMono(Map.class)
-                .flatMapMany(data -> Flux.fromIterable((List<Map<String, Object>>) data.get("results")))
-                .flatMap(result -> getPokemonFromApi((String) result.get("name")));
+                .bodyToMono(Map.class) // Convierte la respuesta a un mapa
+                .flatMapMany(data -> Flux.fromIterable((List<Map<String, Object>>) data.get("results"))) // Extrae los resultados
+                .flatMap(result -> getPokemonFromApi((String) result.get("name"))); // Obtiene detalles de cada Pokémon
     }
 
+
     /**
-     * Mapea los datos obtenidos de la API a un objeto Pokemon.
+     * Mapea los datos obtenidos de la API a un objeto `Pokemon`.
+     * <p>
+     * Este método toma un mapa con los datos crudos obtenidos de la API externa
+     * y mapea esos datos a un objeto `Pokemon`. Este proceso incluye la conversión
+     * de las habilidades, estadísticas, tipos y movimientos a objetos específicos.
+     *
+     * @param data Mapa de datos crudos obtenidos de la API externa.
+     * @return Un objeto `Pokemon` con los datos mapeados.
      */
     private Pokemon mapToPokemon(Map<String, Object> data) {
         Pokemon pokemon = new Pokemon();
@@ -67,7 +83,17 @@ public class ExternalApiService {
     }
 
     /**
-     * Mapea un listado general a una lista de objetos.
+     * Mapea un listado general de datos a una lista de objetos específicos.
+     * <p>
+     * Este método recibe un listado de datos crudos y los mapea utilizando
+     * una función `mapper` que define cómo convertir cada elemento del listado
+     * en un objeto de tipo `T`.
+     *
+     * @param data   El mapa que contiene los datos crudos.
+     * @param key    La clave que contiene el listado de elementos en el mapa.
+     * @param mapper La función que mapea cada elemento del listado a un objeto.
+     * @param <T>    El tipo de objeto al que se mapea cada elemento.
+     * @return Una lista de objetos mapeados de tipo `T`.
      */
     private <T> List<T> mapList(Map<String, Object> data, String key, java.util.function.Function<Map<String, Object>, T> mapper) {
         return ((List<Map<String, Object>>) data.get(key)).stream()

@@ -8,14 +8,6 @@ import javax.swing.*;
  */
 public class WrapLayout extends FlowLayout {
 
-    public WrapLayout() {
-        super();
-    }
-
-    public WrapLayout(int align) {
-        super(align);
-    }
-
     public WrapLayout(int align, int hgap, int vgap) {
         super(align, hgap, vgap);
     }

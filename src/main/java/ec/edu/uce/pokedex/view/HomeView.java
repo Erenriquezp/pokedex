@@ -16,6 +16,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+/**
+ * Vista principal de la aplicación Pokédex que maneja la visualización de los Pokémon
+ * y su paginación en la interfaz gráfica.
+ */
 @Component
 public class HomeView {
 
@@ -26,6 +30,12 @@ public class HomeView {
     private int offset = 0; // Controla la posición actual de paginación
     private static final int POKEMON_PER_PAGE = 6;
 
+    /**
+     * Constructor de la vista principal.
+     *
+     * @param pokeServiceDto Servicio para obtener datos de los Pokémon.
+     * @param uiConfig Configuración de la interfaz de usuario.
+     */
     public HomeView(PokeServiceDto pokeServiceDto, UIConfig uiConfig) {
         this.pokeServiceDto = pokeServiceDto;
         this.uiConfig = uiConfig;
@@ -33,6 +43,10 @@ public class HomeView {
         initialize();
     }
 
+    /**
+     * Inicializa los componentes de la vista, como los paneles, botones y etiquetas.
+     * Configura la paginación y carga la primera página de Pokémon.
+     */
     private void initialize() {
         JLabel titleLabel = ComponentFactory.createLabel("Pokédex - Home", 35, SwingConstants.CENTER);
         JPanel pokemonPanel = new JPanel(new GridLayout(2, 3, 10, 10)); // Asegura que las tarjetas ocupen todo el espacio
@@ -55,12 +69,25 @@ public class HomeView {
         loadPokemonPage(pokemonPanel);
     }
 
+    /**
+     * Crea un botón de navegación con el texto especificado y la acción asociada.
+     *
+     * @param text Texto que se mostrará en el botón.
+     * @param actionListener Acción que se ejecutará al hacer clic en el botón.
+     * @return El botón creado.
+     */
     private JButton createNavigationButton(String text, ActionListener actionListener) {
         JButton button = ComponentFactory.createButton(text, 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
         button.addActionListener(actionListener);
         return button;
     }
 
+    /**
+     * Maneja la navegación entre páginas de Pokémon.
+     *
+     * @param direction Dirección de la navegación, positivo para siguiente página y negativo para la anterior.
+     * @param pokemonPanel El panel donde se muestran los Pokémon.
+     */
     private void navigate(int direction, JPanel pokemonPanel) {
         if (direction < 0 && offset > 0) {
             offset -= POKEMON_PER_PAGE;
@@ -73,6 +100,11 @@ public class HomeView {
         loadPokemonPage(pokemonPanel);
     }
 
+    /**
+     * Carga una página de Pokémon, actualizando el panel de Pokémon en la vista.
+     *
+     * @param pokemonPanel El panel donde se mostrarán las tarjetas de Pokémon.
+     */
     private void loadPokemonPage(JPanel pokemonPanel) {
         try {
             List<PokemonDto> pokemonDtos = pokeServiceDto.getPokemonPage(offset, POKEMON_PER_PAGE);
@@ -85,6 +117,12 @@ public class HomeView {
         }
     }
 
+    /**
+     * Crea una tarjeta de información para un Pokémon específico.
+     *
+     * @param dto El objeto que contiene los datos del Pokémon.
+     * @return El panel con la tarjeta de Pokémon.
+     */
     private JPanel createPokemonCard(PokemonDto dto) {
         JPanel card = ComponentFactory.createPanel(new BorderLayout(0, 0), uiConfig.secondaryColor());
         card.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 2));
@@ -103,6 +141,13 @@ public class HomeView {
         return card;
     }
 
+    /**
+     * Carga de manera asíncrona el sprite del Pokémon.
+     *
+     * @param spriteUrl La URL del sprite.
+     * @param spriteLabel El componente JLabel donde se mostrará la imagen.
+     * @param card El panel donde se encuentra el JLabel.
+     */
     private void loadSpriteAsync(String spriteUrl, JLabel spriteLabel, JPanel card) {
         CompletableFuture.supplyAsync(() -> {
             try {
@@ -120,6 +165,12 @@ public class HomeView {
         }, SwingUtilities::invokeLater);
     }
 
+    /**
+     * Crea un panel con los detalles del Pokémon, como los tipos y habilidades.
+     *
+     * @param dto El objeto que contiene los datos del Pokémon.
+     * @return El panel con los detalles del Pokémon.
+     */
     private JPanel createDetailsPanel(PokemonDto dto) {
         // Usamos un GridLayout con 1 fila y 2 columnas
         JPanel detailsPanel = ComponentFactory.createPanel(new GridLayout(1, 2, 0, 10), uiConfig.secondaryColor());
@@ -135,14 +186,33 @@ public class HomeView {
         return detailsPanel;
     }
 
+    /**
+     * Crea un panel con la lista de tipos del Pokémon.
+     *
+     * @param types Lista de tipos del Pokémon.
+     * @return El panel con los tipos del Pokémon.
+     */
     private JPanel createTypePanel(List<Type> types) {
         return createInfoPanel("Types: ", types.stream().map(Type::getName).distinct().toList());
     }
 
+    /**
+     * Crea un panel con la lista de habilidades del Pokémon.
+     *
+     * @param abilities Lista de habilidades del Pokémon.
+     * @return El panel con las habilidades del Pokémon.
+     */
     private JPanel createAbilityPanel(List<Ability> abilities) {
         return createInfoPanel("Abilities: ", abilities.stream().map(Ability::getName).distinct().limit(2).toList());
     }
 
+    /**
+     * Crea un panel con un título y una lista de elementos.
+     *
+     * @param title El título que aparecerá en la parte superior del panel.
+     * @param items La lista de elementos que se mostrarán en el panel.
+     * @return El panel con el título y los elementos.
+     */
     private JPanel createInfoPanel(String title, List<String> items) {
         JLabel titleLabel = ComponentFactory.createLabel(title, 16, SwingConstants.LEFT);
         titleLabel.setForeground(uiConfig.primaryColor());
@@ -154,12 +224,20 @@ public class HomeView {
         return panel;
     }
 
+    /**
+     * Actualiza la vista de la Pokédex, cargando nuevamente la primera página.
+     */
     public void refreshView() {
         offset = 0; // Reiniciar el paginador al inicio
         JPanel pokemonPanel = (JPanel) ((JScrollPane) panel.getComponent(1)).getViewport().getView();
         loadPokemonPage(pokemonPanel);
     }
 
+    /**
+     * Muestra un mensaje de error en la vista principal.
+     *
+     * @param message El mensaje de error a mostrar.
+     */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)

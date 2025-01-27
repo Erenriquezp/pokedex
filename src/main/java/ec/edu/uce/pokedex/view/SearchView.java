@@ -12,6 +12,10 @@ import javax.swing.*;
 import java.awt.*;
 import java.net.URI;
 
+/**
+ * Vista de búsqueda de Pokémon que permite al usuario buscar un Pokémon por su nombre
+ * y mostrar la información correspondiente como su imagen, estadísticas, habilidades y movimientos.
+ */
 @Component
 public class SearchView {
 
@@ -24,6 +28,12 @@ public class SearchView {
     private final JList<String> moveList;
     private final JTextField searchField;
 
+    /**
+     * Constructor de la vista de búsqueda de Pokémon.
+     *
+     * @param pokeService Servicio que gestiona las consultas a la API de Pokémon.
+     * @param uiConfig Configuración de la interfaz de usuario.
+     */
     public SearchView(PokeService pokeService, UIConfig uiConfig) {
         this.uiConfig = uiConfig;
         this.panel = new JPanel(new BorderLayout(15, 15));
@@ -73,6 +83,11 @@ public class SearchView {
         panel.add(displayPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Crea el campo de texto donde el usuario ingresará el nombre del Pokémon a buscar.
+     *
+     * @return El campo de texto para la búsqueda.
+     */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(25);
         searchField.setFont(uiConfig.labelFont());
@@ -81,6 +96,13 @@ public class SearchView {
         return searchField;
     }
 
+    /**
+     * Crea el botón de búsqueda y maneja su acción.
+     * Al hacer clic, realiza la búsqueda del Pokémon y muestra su información.
+     *
+     * @param pokeService El servicio de consulta de Pokémon.
+     * @return El botón de búsqueda.
+     */
     private JButton createSearchButton(PokeService pokeService) {
         JButton searchButton = ComponentFactory.createButton("Search", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
         searchButton.addActionListener(e -> {
@@ -98,6 +120,12 @@ public class SearchView {
         return searchButton;
     }
 
+    /**
+     * Crea el panel de visualización que contiene la imagen, la información,
+     * las habilidades y los movimientos del Pokémon.
+     *
+     * @return El panel de visualización.
+     */
     private JPanel createDisplayPanel() {
         JPanel displayPanel = new JPanel();
         displayPanel.setLayout(new BoxLayout(displayPanel, BoxLayout.Y_AXIS));
@@ -140,6 +168,13 @@ public class SearchView {
         return displayPanel;
     }
 
+    /**
+     * Crea un panel con una lista y un título. Se utiliza para mostrar habilidades y movimientos.
+     *
+     * @param title El título de la lista (por ejemplo, "Abilities" o "Moves").
+     * @param list La lista de elementos que se mostrarán en el panel.
+     * @return El panel con la lista y su título.
+     */
     private JPanel createListPanel(String title, JList<String> list) {
         JPanel panel = new JPanel(new BorderLayout());
         JLabel titleLabel = ComponentFactory.createLabel(title, 20, SwingConstants.CENTER);
@@ -154,11 +189,23 @@ public class SearchView {
         return panel;
     }
 
+    /**
+     * Realiza la búsqueda del Pokémon y, si lo encuentra, muestra su información.
+     *
+     * @param pokeService El servicio que maneja la búsqueda de Pokémon.
+     * @param name El nombre del Pokémon a buscar.
+     */
     private void fetchAndDisplayPokemonInfo(PokeService pokeService, String name) {
         pokeService.getPokemonByName(name.toLowerCase())
                 .ifPresentOrElse(this::displayPokemonInfo, () -> showError("Pokémon not found."));
     }
 
+    /**
+     * Muestra la información de un Pokémon en la interfaz.
+     * Actualiza la imagen, las estadísticas, habilidades y movimientos.
+     *
+     * @param pokemon El Pokémon cuyas información será mostrada.
+     */
     private void displayPokemonInfo(Pokemon pokemon) {
         SwingUtilities.invokeLater(() -> {
             try {
@@ -212,6 +259,13 @@ public class SearchView {
         });
     }
 
+    /**
+     * Crea un panel con un título y un valor que muestra información adicional de un Pokémon.
+     *
+     * @param title El título de la información (por ejemplo, "ID:", "Name:", etc.).
+     * @param value El valor correspondiente a esa información (por ejemplo, el nombre o la altura).
+     * @return El panel con el título y el valor.
+     */
     private JPanel createInfoLabel(String title, String value) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         JLabel titleLabel = new JLabel(title);
@@ -229,6 +283,11 @@ public class SearchView {
         return panel;
     }
 
+    /**
+     * Carga la imagen del Pokémon a partir de su URL y la muestra en la interfaz.
+     *
+     * @param spriteUrl La URL de la imagen del Pokémon.
+     */
     private void loadImage(String spriteUrl) {
         try {
             URI uri = new URI(spriteUrl);
@@ -240,6 +299,11 @@ public class SearchView {
         }
     }
 
+    /**
+     * Carga y muestra las habilidades y movimientos del Pokémon en las listas correspondientes.
+     *
+     * @param pokemon El Pokémon cuyas habilidades y movimientos serán mostrados.
+     */
     private void loadAbilitiesAndMoves(Pokemon pokemon) {
         abilityList.setListData(pokemon.getAbilities().stream()
                 .map(ability -> String.format("Name: %s, Slot: %d, Hidden: %s",
@@ -252,6 +316,12 @@ public class SearchView {
                 .toArray(String[]::new));
     }
 
+    /**
+     * Muestra un mensaje de error en caso de que ocurra algún problema durante la búsqueda
+     * o la carga de datos.
+     *
+     * @param message El mensaje de error que se mostrará.
+     */
     private void showError(String message) {
         SwingUtilities.invokeLater(() ->
                 JOptionPane.showMessageDialog(panel, message, "Error", JOptionPane.ERROR_MESSAGE)

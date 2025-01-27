@@ -13,6 +13,10 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * The EvolutionView class is responsible for managing the user interface related to displaying a Pokémon's evolution chain.
+ * It allows users to search for a Pokémon species by name and view its evolutionary stages.
+ */
 @Component
 public class EvolutionView {
 
@@ -21,6 +25,13 @@ public class EvolutionView {
     private final EvolutionController controller;
     private final UIConfig uiConfig;
 
+    /**
+     * Constructor for the EvolutionView class.
+     * Initializes the view components and sets up the event listeners.
+     *
+     * @param controller The controller responsible for fetching evolution chain data.
+     * @param uiConfig   The configuration for UI styling.
+     */
     public EvolutionView(EvolutionController controller, UIConfig uiConfig) {
         this.controller = controller;
         this.uiConfig = uiConfig;
@@ -30,13 +41,14 @@ public class EvolutionView {
 
     /**
      * Initializes the components of the EvolutionView.
+     * Sets up the title, search bar, and evolution display area.
      */
     private void initialize() {
-        // Crear título
+        // Create title label
         JLabel titleLabel = ComponentFactory.createLabel("Pokémon Evolution Chain Viewer", 28, SwingConstants.CENTER);
         titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        // Crear barra de búsqueda
+        // Create search bar and button
         JTextField searchField = createSearchField();
         JButton searchButton = ComponentFactory.createButton("Search", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -45,13 +57,14 @@ public class EvolutionView {
         searchPanel.add(searchButton);
         searchPanel.setBackground(uiConfig.secondaryColor());
 
-        // Contenedor para título y barra de búsqueda
+        // Header panel to hold title and search bar
         JPanel headerPanel = new JPanel(new BorderLayout());
         headerPanel.add(titleLabel, BorderLayout.NORTH);
         headerPanel.add(searchPanel, BorderLayout.SOUTH);
 
-        // Crear panel para mostrar la evolución
-        JPanel evolutionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 30));        JScrollPane scrollPane = new JScrollPane(evolutionPanel);
+        // Evolution panel to display evolutionary stages
+        JPanel evolutionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 30));
+        JScrollPane scrollPane = new JScrollPane(evolutionPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -59,6 +72,7 @@ public class EvolutionView {
         panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
+        // Set action listener for search button
         searchButton.addActionListener(e -> {
             String speciesName = searchField.getText().trim();
             if (speciesName.isEmpty()) {
@@ -72,7 +86,7 @@ public class EvolutionView {
     /**
      * Creates the search field with styling.
      *
-     * @return JTextField styled search field.
+     * @return A JTextField that allows users to input a Pokémon species name.
      */
     private JTextField createSearchField() {
         JTextField searchField = new JTextField(25);
@@ -83,10 +97,11 @@ public class EvolutionView {
     }
 
     /**
-     * Fetches and displays the evolution chain for a given Pokémon species.
+     * Fetches the evolution chain for the given Pokémon species and displays it in the provided panel.
+     * This is done asynchronously to avoid blocking the UI.
      *
-     * @param speciesName   Name of the Pokémon species.
-     * @param evolutionPanel Panel to display the evolution chain.
+     * @param speciesName   The name of the Pokémon species to fetch the evolution chain for.
+     * @param evolutionPanel The panel where the evolution chain will be displayed.
      */
     private void fetchAndDisplayEvolutionChain(String speciesName, JPanel evolutionPanel) {
         SwingWorker<List<Map<String, Object>>, Void> worker = new SwingWorker<>() {
@@ -119,15 +134,16 @@ public class EvolutionView {
     }
 
     /**
-     * Populates the evolution panel with data.
+     * Populates the evolution panel with the evolution stages.
      *
-     * @param chain          List of evolution stages.
-     * @param evolutionPanel Panel to populate with evolution details.
+     * @param chain          The list of evolution stages to display.
+     * @param evolutionPanel The panel to populate with evolution details.
      */
     private void populateEvolutionPanel(List<Map<String, Object>> chain, JPanel evolutionPanel) {
         SwingUtilities.invokeLater(() -> {
             evolutionPanel.removeAll();
 
+            // Iterate through each evolution stage and add it to the panel
             chain.forEach(stage -> {
                 JPanel stagePanel = createEvolutionStagePanel(stage);
                 evolutionPanel.add(stagePanel);
@@ -139,10 +155,10 @@ public class EvolutionView {
     }
 
     /**
-     * Creates a panel for an evolution stage.
+     * Creates a panel for displaying a specific evolution stage.
      *
-     * @param stage Map containing the evolution stage data.
-     * @return JPanel representing the evolution stage.
+     * @param stage A map containing the data for the evolution stage.
+     * @return A JPanel displaying the evolution stage.
      */
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
@@ -165,10 +181,10 @@ public class EvolutionView {
     }
 
     /**
-     * Creates a JLabel for the Pokémon sprite.
+     * Creates a JLabel for the Pokémon sprite, either displaying the image or an error message if the image cannot be loaded.
      *
-     * @param imageUrl URL of the Pokémon sprite.
-     * @return JLabel with the sprite or an error message.
+     * @param imageUrl The URL of the Pokémon sprite image.
+     * @return A JLabel displaying the sprite or an error message.
      */
     private JLabel createSpriteLabel(String imageUrl) {
         JLabel spriteLabel = new JLabel();
@@ -210,8 +226,8 @@ public class EvolutionView {
     /**
      * Extracts the Pokémon ID from the species URL.
      *
-     * @param url URL of the species.
-     * @return Extracted Pokémon ID.
+     * @param url The URL of the species data.
+     * @return The extracted Pokémon ID.
      */
     private String extractIdFromUrl(String url) {
         String[] parts = url.split("/");
@@ -219,9 +235,9 @@ public class EvolutionView {
     }
 
     /**
-     * Displays an error message to the user.
+     * Displays an error message to the user in a dialog.
      *
-     * @param message Error message to display.
+     * @param message The error message to display.
      */
     private void showErrorMessage(String message) {
         SwingUtilities.invokeLater(() ->
