@@ -43,18 +43,20 @@ public class SpriteView {
         searchPanel.add(searchButton);
         searchPanel.setBackground(uiConfig.secondaryColor());
 
+        // Contenedor para título y barra de búsqueda
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.add(titleLabel, BorderLayout.NORTH);
+        headerPanel.add(searchPanel, BorderLayout.SOUTH);
+
         JPanel spritePanel = new JPanel();
         JScrollPane scrollPane = ComponentFactory.createScrollPane(spritePanel);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         spritePanel.setBackground(uiConfig.secondaryColor());
 
-        // Agregar componentes al panel principal
-        panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(searchPanel, BorderLayout.CENTER);
-        panel.add(scrollPane, BorderLayout.SOUTH);
+        panel.add(headerPanel, BorderLayout.NORTH);
+        panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Acción para el botón de búsqueda
         searchButton.addActionListener(e -> {
             String pokemonName = searchField.getText().trim();
             if (pokemonName.isEmpty()) {
@@ -126,7 +128,7 @@ public class SpriteView {
             try {
                 URI uri = new URI(spriteUrl);
                 ImageIcon spriteIcon = new ImageIcon(uri.toURL());
-                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(160, 160, Image.SCALE_SMOOTH)));
+                spriteIcons.add(new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH)));
             } catch (Exception ignored) {
                 // Log the error if necessary, but avoid stopping the flow.
             }

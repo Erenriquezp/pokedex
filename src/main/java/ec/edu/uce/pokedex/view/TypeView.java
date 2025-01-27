@@ -29,29 +29,30 @@ public class TypeView {
     }
 
     private void initialize() {
-        JLabel titleLabel = ComponentFactory.createLabel("Pokémon by Type Viewer", 35, SwingConstants.CENTER);
+        // Crear título
+        JLabel titleLabel = ComponentFactory.createLabel("Pokémon by Type Viewer", 28, SwingConstants.CENTER);
+        titleLabel.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
+        // Crear barra de búsqueda
         JTextField searchField = createSearchField();
-        JButton searchButton = createSearchButton(searchField);
+        JButton searchButton = ComponentFactory.createButton("Search", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        searchPanel.add(searchField);
+        searchPanel.add(searchButton);
+        searchPanel.setBackground(uiConfig.secondaryColor());
 
-        JPanel searchPanel = createSearchPanel(searchField, searchButton);
+        // Contenedor para título y barra de búsqueda
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.add(titleLabel, BorderLayout.NORTH);
+        headerPanel.add(searchPanel, BorderLayout.SOUTH);
+
+        // Crear panel de resultados
         JScrollPane scrollPane = createPokemonScrollPane();
 
-        panel.add(titleLabel, BorderLayout.NORTH);
-        panel.add(searchPanel, BorderLayout.NORTH);
+        panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
-    }
 
-    private JTextField createSearchField() {
-        JTextField searchField = new JTextField(20);
-        searchField.setFont(uiConfig.labelFont());
-        searchField.setHorizontalAlignment(JTextField.CENTER);
-        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
-        return searchField;
-    }
-
-    private JButton createSearchButton(JTextField searchField) {
-        JButton searchButton = ComponentFactory.createButton("Search", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
+        // Acciones del botón de búsqueda
         searchButton.addActionListener(e -> {
             String typeName = searchField.getText().trim();
             if (typeName.isEmpty()) {
@@ -60,26 +61,25 @@ public class TypeView {
                 fetchAndDisplayPokemonByType(typeName);
             }
         });
-        return searchButton;
     }
 
-    private JPanel createSearchPanel(JTextField searchField, JButton searchButton) {
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        searchPanel.add(searchField);
-        searchPanel.add(searchButton);
-        searchPanel.setBorder(BorderFactory.createTitledBorder("Search Pokémon by Type"));
-        return searchPanel;
+    private JTextField createSearchField() {
+        JTextField searchField = new JTextField(25);
+        searchField.setFont(uiConfig.labelFont());
+        searchField.setHorizontalAlignment(JTextField.CENTER);
+        searchField.setBorder(BorderFactory.createLineBorder(uiConfig.primaryColor(), 2));
+        return searchField;
     }
 
     private JScrollPane createPokemonScrollPane() {
         JPanel pokemonPanel = new JPanel();
-        pokemonPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15)); // Ajuste automático a filas y columnas
+        pokemonPanel.setLayout(new WrapLayout(FlowLayout.LEFT, 15, 15));
         pokemonPanel.setBackground(uiConfig.secondaryColor());
 
         JScrollPane scrollPane = new JScrollPane(pokemonPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-        scrollPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         return scrollPane;
     }
 
@@ -113,7 +113,7 @@ public class TypeView {
     }
 
     private void populatePokemonPanel(List<Pokemon> pokemons) {
-        JPanel pokemonPanel = (JPanel) ((JScrollPane) panel.getComponent(2)).getViewport().getView();
+        JPanel pokemonPanel = (JPanel) ((JScrollPane) panel.getComponent(1)).getViewport().getView();
         SwingUtilities.invokeLater(() -> {
             pokemonPanel.removeAll();
             pokemons.forEach(pokemon -> pokemonPanel.add(createPokemonCard(pokemon)));

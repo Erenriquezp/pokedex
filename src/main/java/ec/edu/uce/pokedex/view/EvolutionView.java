@@ -28,6 +28,9 @@ public class EvolutionView {
         initialize();
     }
 
+    /**
+     * Initializes the components of the EvolutionView.
+     */
     private void initialize() {
         // Crear título
         JLabel titleLabel = ComponentFactory.createLabel("Pokémon Evolution Chain Viewer", 28, SwingConstants.CENTER);
@@ -37,6 +40,7 @@ public class EvolutionView {
         JTextField searchField = createSearchField();
         JButton searchButton = ComponentFactory.createButton("Search", 18, uiConfig.primaryColor(), uiConfig.secondaryColor());
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
+
         searchPanel.add(searchField);
         searchPanel.add(searchButton);
         searchPanel.setBackground(uiConfig.secondaryColor());
@@ -47,17 +51,14 @@ public class EvolutionView {
         headerPanel.add(searchPanel, BorderLayout.SOUTH);
 
         // Crear panel para mostrar la evolución
-        JPanel evolutionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 30));
-        JScrollPane scrollPane = new JScrollPane(evolutionPanel);
+        JPanel evolutionPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 30, 30));        JScrollPane scrollPane = new JScrollPane(evolutionPanel);
         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_NEVER);
         scrollPane.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-        // Agregar componentes principales al panel
         panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
-        // Acciones del botón de búsqueda
         searchButton.addActionListener(e -> {
             String speciesName = searchField.getText().trim();
             if (speciesName.isEmpty()) {
@@ -145,9 +146,8 @@ public class EvolutionView {
      */
     private JPanel createEvolutionStagePanel(Map<String, Object> stage) {
         JPanel stagePanel = new JPanel(new BorderLayout());
-        stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 3));
+        stagePanel.setBorder(BorderFactory.createLineBorder(uiConfig.tertiaryColor(), 2));
         stagePanel.setBackground(uiConfig.secondaryColor());
-        stagePanel.setPreferredSize(new Dimension(220, 270));
 
         Map<String, Object> species = (Map<String, Object>) stage.get("species");
         String speciesName = (String) species.get("name");
@@ -156,7 +156,7 @@ public class EvolutionView {
                 extractIdFromUrl((String) species.get("url"))
         );
 
-        JLabel nameLabel = ComponentFactory.createLabel(speciesName.toUpperCase(), 16, SwingConstants.CENTER);
+        JLabel nameLabel = ComponentFactory.createLabel(speciesName.toUpperCase(), 14, SwingConstants.CENTER);
         JLabel spriteLabel = createSpriteLabel(imageUrl);
 
         stagePanel.add(nameLabel, BorderLayout.NORTH);
@@ -180,7 +180,7 @@ public class EvolutionView {
                 try {
                     URI uri = new URI(imageUrl);
                     ImageIcon spriteIcon = new ImageIcon(uri.toURL());
-                    return new ImageIcon(spriteIcon.getImage().getScaledInstance(200, 200, Image.SCALE_SMOOTH));
+                    return new ImageIcon(spriteIcon.getImage().getScaledInstance(250, 250, Image.SCALE_SMOOTH));
                 } catch (Exception e) {
                     return null;
                 }
